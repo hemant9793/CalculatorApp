@@ -1,11 +1,13 @@
 import { CompositeNavigationProp, RouteProp } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { ViewStyle } from "react-native"
 
 
 
 export type RootStackParamList = {
     Splash: undefined
     Auth: undefined
+    App: undefined
   }
 
   export type RootScreenProps<T extends keyof RootStackParamList> = {
@@ -23,4 +25,29 @@ export type RootStackParamList = {
       NativeStackNavigationProp<AuthStackParamList, T>,
       NativeStackNavigationProp<RootStackParamList>
     >
+  }
+
+  export type AppStackParamList = {
+    HomeScreen: undefined
+    EmiCalculator: undefined
+  }
+
+  export type AppScreenProps<T extends keyof AppStackParamList> = {
+    route: RouteProp<AppStackParamList, T>
+    navigation: CompositeNavigationProp<
+      NativeStackNavigationProp<AppStackParamList, T>,
+      NativeStackNavigationProp<RootStackParamList>
+    >
+  }
+
+  export type ChipsProps = {
+    chipData:string[]
+    selectedChip:string
+    containerStyle?:ViewStyle
+    onChipPress:(chip:string)=>void
+  }
+
+  export type EmitFooter = {
+    onResetPress:()=>void
+    onCalculatePress:()=>void
   }

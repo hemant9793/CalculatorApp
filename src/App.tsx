@@ -9,11 +9,17 @@
  */
 
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {ApplicationProvider, Button} from '@ui-kitten/components';
 import {RootNavigator} from '@src/ui/navigation';
+import * as eva from '@eva-design/eva';
+import {default as theme} from '../theme.json';
 
 const App = () => {
-  return <RootNavigator />;
+  return (
+    <ApplicationProvider {...eva} theme={{...eva.light, ...theme}}>
+      <RootNavigator />
+    </ApplicationProvider>
+  );
 };
 
 export default App;

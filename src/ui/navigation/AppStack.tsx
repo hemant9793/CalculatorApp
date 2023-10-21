@@ -4,6 +4,7 @@ import {AppStackParamList} from '@src/types';
 import {commonNavigationStyles} from './CommonNavigationStyles';
 import HomeScreen from '@src/ui/screens/homescreen';
 import EmiCalculator from '@src/ui/screens/emiCalculator';
+import DetailScreen from '../screens/Details';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -14,6 +15,7 @@ export function AppStack() {
       screenOptions={commonNavigationStyles}>
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
       <Stack.Screen name="EmiCalculator" component={EmiCalculator} />
+      <Stack.Screen name="DetailScreen" component={DetailScreen} />
     </Stack.Navigator>
   );
 }

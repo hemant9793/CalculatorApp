@@ -6,11 +6,15 @@ import EmiFooter from './components/emiFooter'; // Import the EmiFooter componen
 
 import {STRINGS} from './strings';
 import {calculateEMI, calculatePrincipal} from '../helpers/formulas';
+import {AppScreenProps} from '@src/types';
 
 const HEADER_CHIPS = ['EMI', 'Loan Amount', 'Interest', 'Period'];
 const MONTH_OR_YEARS = ['Years', 'Months'];
 
-const EmiCalculator = () => {
+const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
+  route,
+  navigation,
+}) => {
   const kittenStyle = useStyleSheet(kittenStyles);
 
   const [principal, setPrincipal] = useState('');
@@ -58,12 +62,13 @@ const EmiCalculator = () => {
     const monthlyInterestRate = parseFloat(interestRate) / 100 / 12; // Monthly interest rate
     const loanTenureMonths =
       selectedMOrY == 'Years' ? parseFloat(tenure) * 12 : parseFloat(tenure);
+    let calcPrincipal;
     if (
       !isNaN(parseFloat(enteredEmi)) &&
       !isNaN(monthlyInterestRate) &&
       !isNaN(loanTenureMonths)
     ) {
-      const calcPrincipal = calculatePrincipal(
+      calcPrincipal = calculatePrincipal(
         parseFloat(enteredEmi),
         monthlyInterestRate,
         loanTenureMonths,
@@ -73,6 +78,13 @@ const EmiCalculator = () => {
     } else {
       setCalculatedVal('');
     }
+    navigation.navigate('DetailScreen', {
+      selectedChip,
+      emi: parseFloat(enteredEmi) ?? 0,
+      loanamount: calcPrincipal ?? 0,
+      interest: parseFloat(interestRate),
+      period: loanTenureMonths,
+    });
   };
 
   const checkValAndCalcEmi = (
@@ -81,13 +93,14 @@ const EmiCalculator = () => {
     loanTenureMonths: number,
     setCalculatedVal: React.Dispatch<React.SetStateAction<string>>,
   ) => {
+    let emiValue;
     if (
       !isNaN(principalAmount) &&
       !isNaN(monthlyInterestRate) &&
       !isNaN(loanTenureMonths)
     ) {
       // Calculate EMI
-      const emiValue = calculateEMI(
+      emiValue = calculateEMI(
         principalAmount,
         monthlyInterestRate,
         loanTenureMonths,
@@ -97,6 +110,13 @@ const EmiCalculator = () => {
     } else {
       setCalculatedVal('');
     }
+    navigation.navigate('DetailScreen', {
+      selectedChip,
+      emi: emiValue?.toFixed(2) ?? 0,
+      loanamount: parseFloat(principal) ?? 0,
+      interest: parseFloat(interestRate),
+      period: loanTenureMonths,
+    });
   };
 
   const calculateValue = () => {

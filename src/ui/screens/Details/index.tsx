@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, Dimensions} from 'react-native';
 import {
   Layout,
   Text,
@@ -10,6 +10,8 @@ import {
 } from '@ui-kitten/components';
 import {AppScreenProps} from '@src/types';
 import HorizontalInfo from '../components/horizontalInfo';
+import PieChart from '../components/piechart';
+import {calculatePercentage} from '../helpers/formulas';
 
 const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
   route,
@@ -28,15 +30,49 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
 
   // Dummy data for HorizontalInfo components
   const screenData = [
-    {title: 'Emi', value: (emi ?? 0).toString()}, // Convert emi to a string
-    {title: 'Interest', value: interest.toString()}, // Convert interest to a string
-    {title: 'Loan Amount', value: loanAmount.toString()}, // Convert loanAmount to a string
-    {title: 'Period', value: period.toString()},
+    {title: 'Emi', value: emi ?? 0}, // Convert emi to a string
+    {title: 'Interest', value: interest}, // Convert interest to a string
+    {title: 'Loan Amount', value: loanAmount}, // Convert loanAmount to a string
+    {title: 'Period', value: period},
+    {title: 'Total Interest', value: (emi * period - loanAmount).toFixed(2)},
+    {title: 'Total Payment', value: emi * period - loanAmount + loanAmount},
   ];
 
   const getSelectedChipValue = (selectedChip: string) => {
     const selectedKey = selectedChip.toLowerCase().replace(/ /g, '');
+    //@ts-ignore
     return route.params[selectedKey];
+  };
+
+  const data = [
+    {
+      name: 'Total interest',
+      percentage: calculatePercentage(
+        emi * period - loanAmount,
+        loanAmount,
+        'A',
+      ),
+      color: 'rgba(131, 167, 234, 1)',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 15,
+    },
+    {
+      name: 'Loan Amount',
+      percentage: calculatePercentage(
+        emi * period - loanAmount,
+        loanAmount,
+        'B',
+      ),
+      color: '#F00',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 15,
+    },
+  ];
+
+  const chartConfig = {
+    backgroundGradientFrom: 'pink',
+    backgroundGradientTo: 'yellow',
+    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
   };
 
   return (
@@ -56,16 +92,26 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
         <HorizontalInfo
           key={index}
           title={data.title}
-          value={data.value}
+          value={data.value.toString()}
           showDivider={index < screenData.length - 1}
         />
       ))}
+
+      <Layout style={styles.chartContainer}>
+        <PieChart
+          data={data}
+          width={Dimensions.get('screen').width * 0.9}
+          height={100}
+          chartConfig={chartConfig}
+          accessor="percentage"
+        />
+      </Layout>
 
       {/* Button */}
       <Button
         style={styles.button}
         onPress={() => {
-          // Add your navigation logic here
+          navigation.navigate('InDepthDetailScreen', route.params);
         }}>
         See Details
       </Button>
@@ -81,6 +127,11 @@ const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
     paddingHorizontal: 10,
+  },
+  chartContainer: {
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   card: {
     padding: 12,

@@ -1,6 +1,12 @@
 import React, {useState} from 'react';
 import {StyleSheet} from 'react-native';
-import {Layout, Text, Input, useStyleSheet} from '@ui-kitten/components';
+import {
+  Layout,
+  Text,
+  Input,
+  useStyleSheet,
+  useTheme,
+} from '@ui-kitten/components';
 import {Chips} from '../components';
 import EmiFooter from './components/emiFooter'; // Import the EmiFooter component
 
@@ -16,6 +22,7 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
   navigation,
 }) => {
   const kittenStyle = useStyleSheet(kittenStyles);
+  const theme = useTheme();
 
   const [principal, setPrincipal] = useState('');
   const [interestRate, setInterestRate] = useState('');
@@ -75,16 +82,16 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
       );
 
       setCalculatedVal(calcPrincipal.toFixed(2));
+      navigation.navigate('DetailScreen', {
+        selectedChip,
+        emi: parseFloat(enteredEmi) ?? 0,
+        loanamount: calcPrincipal ?? 0,
+        interest: parseFloat(interestRate),
+        period: loanTenureMonths,
+      });
     } else {
       setCalculatedVal('');
     }
-    navigation.navigate('DetailScreen', {
-      selectedChip,
-      emi: parseFloat(enteredEmi) ?? 0,
-      loanamount: calcPrincipal ?? 0,
-      interest: parseFloat(interestRate),
-      period: loanTenureMonths,
-    });
   };
 
   const checkValAndCalcEmi = (
@@ -107,16 +114,16 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
       );
 
       setCalculatedVal(emiValue.toFixed(2));
+      navigation.navigate('DetailScreen', {
+        selectedChip,
+        emi: emiValue?.toFixed(2) ?? 0,
+        loanamount: parseFloat(principal) ?? 0,
+        interest: parseFloat(interestRate),
+        period: loanTenureMonths,
+      });
     } else {
       setCalculatedVal('');
     }
-    navigation.navigate('DetailScreen', {
-      selectedChip,
-      emi: emiValue?.toFixed(2) ?? 0,
-      loanamount: parseFloat(principal) ?? 0,
-      interest: parseFloat(interestRate),
-      period: loanTenureMonths,
-    });
   };
 
   const calculateValue = () => {
@@ -124,6 +131,7 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
     const monthlyInterestRate = parseFloat(interestRate) / 100 / 12; // Monthly interest rate
     const loanTenureMonths =
       selectedMOrY == 'Years' ? parseFloat(tenure) * 12 : parseFloat(tenure); // Loan tenure in months
+    console.log('loanTenureMonths', loanTenureMonths);
     checkAndSetErrors();
     if (selectedChip == 'Loan Amount') {
       checkValAndCalcPrincipal(
@@ -196,13 +204,25 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
 
         {selectedChip !== STRINGS.EMI_LABEL && (
           <Input
-            label={STRINGS.EMI_LABEL}
+            label={() => (
+              <Text style={{color: theme['color-basic-900']}}>
+                {STRINGS.EMI_LABEL}
+              </Text>
+            )}
+            caption={() => {
+              return (
+                <Text style={{color: 'red', fontWeight: 'bold'}}>
+                  {emiError}
+                </Text>
+              );
+            }}
+            // label={STRINGS.EMI_LABEL}
             placeholder={STRINGS.EMI_PLACEHOLDER}
             keyboardType="numeric"
             value={enteredEmi}
             style={styles.input}
             onChangeText={setEnteredEmi}
-            caption={emiError}
+            // caption={emiError}
           />
         )}
         {selectedChip !== STRINGS.LOAN_TENURE_LABEL && (
@@ -231,7 +251,7 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
 
       <EmiFooter onResetPress={reset} onCalculatePress={calculateValue} />
 
-      {calculatedVal ? (
+      {/* {calculatedVal ? (
         <Layout style={styles.card}>
           <Text category="h6" style={styles.cardTitle}>
             {STRINGS.EMI_LABEL}
@@ -240,7 +260,7 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
             {calculatedVal}
           </Text>
         </Layout>
-      ) : null}
+      ) : null} */}
     </Layout>
   );
 };

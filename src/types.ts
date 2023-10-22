@@ -25,16 +25,19 @@ export type AuthScreenProps<T extends keyof AuthStackParamList> = {
   >;
 };
 
+export type CommonScreenProps = {
+  selectedChip: string;
+  emi?: number;
+  loanamount: number; //done to use routeparams as key to find title value
+  interest: number;
+  period: number;
+};
+
 export type AppStackParamList = {
   HomeScreen: undefined;
   EmiCalculator: undefined;
-  DetailScreen: {
-    selectedChip: string;
-    emi?: number;
-    loanamount: number; //done to use routeparams as key to find title value
-    interest: number;
-    period: number;
-  };
+  DetailScreen: CommonScreenProps;
+  InDepthDetailScreen: CommonScreenProps;
 };
 
 export type AppScreenProps<T extends keyof AppStackParamList> = {
@@ -61,4 +64,12 @@ export type HorizontalInfoProps = {
   title: string;
   value: string;
   showDivider: boolean;
+};
+
+export type PieChartProps = {
+  data: any[];
+  width: number;
+  height: number;
+  chartConfig: Object;
+  accessor: string;
 };

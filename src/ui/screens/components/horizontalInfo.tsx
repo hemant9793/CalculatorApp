@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     // flex: 1,
-    height: 2,
+    height: 1,
     backgroundColor: '#aab7c0',
   },
 });

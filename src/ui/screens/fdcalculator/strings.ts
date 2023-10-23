@@ -1,0 +1,16 @@
+export const STRINGS = {
+  DEPOSIT_AMOUNT: 'Deposit amount',
+  DEPOSIT_AMOUNT_PLACEHOLDER: 'Enter Deposit amount',
+  MONTHLY_DEPOSIT: 'Monthly Deposit',
+  MONTHLY_DEPOSIT_PLACEHOLDER: 'Enter Monthly Deposit',
+  RATE_OF_INTEREST: 'Rate of interest',
+  TENURE: 'Tenure',
+  SAVING_TERMS: 'Saving term',
+  PRINCIPAL_AMOUNT_PLACEHOLDER: 'Enter loan amount',
+  INTEREST_RATE_PLACEHOLDER: 'Enter interest rate',
+  LOAN_TENURE_PLACEHOLDER: 'Enter Period',
+  MONTHS: 'Months',
+  FREQUENCY: 'Frequency',
+  CALCULATE_BUTTON: 'Calculate',
+  RESET: 'Reset',
+};

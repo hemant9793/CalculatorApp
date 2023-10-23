@@ -6,6 +6,9 @@ import HomeScreen from '@src/ui/screens/homescreen';
 import EmiCalculator from '@src/ui/screens/emiCalculator';
 import DetailScreen from '../screens/Details';
 import InDepthDetailScreen from '../screens/indepthsetailscreen';
+import CompareLoansScreen from '../screens/compareloan';
+import LoanComparisonDetails from '../screens/loancomparisondetail';
+import FdCalculator from '../screens/fdcalculator';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -16,10 +19,16 @@ export function AppStack() {
       screenOptions={commonNavigationStyles}>
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
       <Stack.Screen name="EmiCalculator" component={EmiCalculator} />
+      <Stack.Screen name="FdCalculator" component={FdCalculator} />
       <Stack.Screen name="DetailScreen" component={DetailScreen} />
       <Stack.Screen
         name="InDepthDetailScreen"
         component={InDepthDetailScreen}
+      />
+      <Stack.Screen name="CompareLoansScreen" component={CompareLoansScreen} />
+      <Stack.Screen
+        name="LoanComparisonDetails"
+        component={LoanComparisonDetails}
       />
     </Stack.Navigator>
   );

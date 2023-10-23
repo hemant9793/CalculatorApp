@@ -48,7 +48,7 @@ const kittenStyles = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
-  chipContainer: {flexDirection: 'row'},
+  chipContainer: {flexDirection: 'row', justifyContent: 'center'},
   chip: {
     paddingVertical: 6,
     paddingHorizontal: 12,

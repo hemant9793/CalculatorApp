@@ -38,3 +38,27 @@ export function calculatePercentage(A: number, B: number, option: 'A' | 'B') {
 export const roundNumber = (num: number) => {
   return Math.round(num * 100) / 100;
 };
+
+export function calculateFDMaturityAmount(
+  principal: number,
+  rateOfInterest: number,
+  timePeriodInMonths: number,
+  compoundingFrequency: string,
+): number {
+  let n: number; // Compounding frequency per year
+  if (compoundingFrequency === 'cumulative') {
+    n = 1; // Compounded annually
+  } else if (compoundingFrequency === 'quarterly') {
+    n = 4; // Compounded quarterly
+  } else {
+    n = 12; // Compounded monthly
+  }
+
+  // Calculate the maturity amount with compound interest
+  const r = rateOfInterest / (n * 100); // Monthly or quarterly interest rate
+  const t = timePeriodInMonths / 12; // Time in years
+
+  const maturityAmount = principal * Math.pow(1 + r, n * t);
+
+  return maturityAmount;
+}

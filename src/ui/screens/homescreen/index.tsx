@@ -13,7 +13,7 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
       title: 'Emi Calculators',
       data: [
         {key: 'Emi Calculator', screen: 'EmiCalculator', icon: ''},
-        {key: 'Compare Loans', screen: 'EmiCalculator', icon: ''},
+        {key: 'Compare Loans', screen: 'CompareLoansScreen', icon: ''},
         // Add more items for List
       ],
     },
@@ -30,7 +30,9 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
   ];
 
   const onItemPress = (item: any) => {
-    navigation.navigate('EmiCalculator');
+    navigation.navigate('FdCalculator', {
+      screenTitle: 'FdCalculator',
+    });
   };
 
   const renderSection = (section: any, index: number) => {

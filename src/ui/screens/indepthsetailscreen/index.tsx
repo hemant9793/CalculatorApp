@@ -20,22 +20,38 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
   const kittenStyle = useStyleSheet(kittenStyles);
 
   const {
-    emi,
-    interest,
-    loanamount: loanAmount,
-    period,
+    emi = 0,
+    interest = 0,
+    loanamount: loanAmount = 0,
+    period = 0,
     selectedChip,
+    investmentAmount = 0,
+    investmentDate = '',
+    isBankingDetails,
+    maturityDate = '',
+    maturityValue = 0,
+    totalInterest = 0,
   } = route.params;
   console.log(route.params);
 
   // Dummy data for HorizontalInfo components
-  const screenData = [
-    {title: 'Emi', value: (emi ?? 0).toString()}, // Convert emi to a string
-    {title: 'Interest', value: interest.toString()}, // Convert interest to a string
-    {title: 'Loan Amount', value: loanAmount.toString()}, // Convert loanAmount to a string
+  const emiData = [
+    {title: 'Emi', value: emi.toString()},
+    {title: 'Interest', value: interest.toString()},
+    {title: 'Loan Amount', value: loanAmount.toString()},
     {title: 'Period', value: period.toString()},
     {title: 'Total Interest', value: (emi * period - loanAmount).toFixed(2)},
   ];
+
+  const bankingData = [
+    {title: 'Maturity Value', value: maturityValue.toString()},
+    {title: 'Investment Amount', value: investmentAmount.toString()},
+    {title: 'Total Interest', value: totalInterest.toString()},
+    {title: 'Investment Date', value: investmentDate.toString()},
+    {title: 'Maturity Date', value: maturityDate?.toString()},
+  ];
+
+  const screenData = isBankingDetails ? bankingData : emiData;
 
   const calculateAmortizationSchedule = (
     principal: number,
@@ -72,17 +88,20 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
           key={index}
           title={data.title}
           value={data.value}
+          isHorizontal={!isBankingDetails}
           showDivider={index < screenData.length - 1}
         />
       ))}
-      <AmortizationSchedule
-        schedule={calculateAmortizationSchedule(
-          loanAmount,
-          interest,
-          period,
-          emi ?? 0,
-        )}
-      />
+      {!isBankingDetails && (
+        <AmortizationSchedule
+          schedule={calculateAmortizationSchedule(
+            loanAmount,
+            interest,
+            period,
+            emi ?? 0,
+          )}
+        />
+      )}
     </Layout>
   );
 };

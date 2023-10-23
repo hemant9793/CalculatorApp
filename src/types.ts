@@ -26,18 +26,38 @@ export type AuthScreenProps<T extends keyof AuthStackParamList> = {
 };
 
 export type CommonScreenProps = {
-  selectedChip: string;
+  selectedChip?: string;
   emi?: number;
-  loanamount: number; //done to use routeparams as key to find title value
-  interest: number;
-  period: number;
+  loanamount?: number; //done to use routeparams as key to find title value
+  interest?: number;
+  period?: number;
+  isBankingDetails?: boolean;
+  maturityValue?: number;
+  investmentAmount?: number;
+  totalInterest?: number;
+  investmentDate?: string;
+  maturityDate?: string;
 };
 
 export type AppStackParamList = {
   HomeScreen: undefined;
   EmiCalculator: undefined;
+  FdCalculator: {
+    screenTitle: string;
+  };
   DetailScreen: CommonScreenProps;
   InDepthDetailScreen: CommonScreenProps;
+  CompareLoansScreen: undefined;
+  LoanComparisonDetails: {
+    principalAmount: number;
+    monthlyInterestRate: number;
+    loanTenureMonths: number;
+    emi1: number;
+    principalAmount2: number;
+    monthlyInterestRate2: number;
+    loanTenureMonths2: number;
+    emi2: number;
+  };
 };
 
 export type AppScreenProps<T extends keyof AppStackParamList> = {
@@ -56,6 +76,11 @@ export type ChipsProps = {
 };
 
 export type EmitFooter = {
+  containerStyle?: ViewStyle;
+  rightTitle?: string;
+  leftTitle?: string;
+  rightButtonVisible?: boolean;
+  leftButtonVisible?: boolean;
   onResetPress: () => void;
   onCalculatePress: () => void;
 };
@@ -64,6 +89,7 @@ export type HorizontalInfoProps = {
   title: string;
   value: string;
   showDivider: boolean;
+  isHorizontal?: boolean;
 };
 
 export type PieChartProps = {
@@ -72,4 +98,12 @@ export type PieChartProps = {
   height: number;
   chartConfig: Object;
   accessor: string;
+};
+
+export type LoanComparisonCardProps = {
+  cardTitle: string;
+  title1: string;
+  value1: number;
+  title2: string;
+  value2: number;
 };

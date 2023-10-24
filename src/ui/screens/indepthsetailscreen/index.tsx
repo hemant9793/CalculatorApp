@@ -1,30 +1,24 @@
 import React from 'react';
 import {StyleSheet, Dimensions} from 'react-native';
-import {
-  Layout,
-  Text,
-  Button,
-  Card,
-  Divider,
-  useStyleSheet,
-} from '@ui-kitten/components';
+import {Layout, useStyleSheet, useTheme} from '@ui-kitten/components';
 import {AppScreenProps} from '@src/types';
 import HorizontalInfo from '../components/horizontalInfo';
-import {roundNumber} from '../helpers/formulas';
+import {calculatePercentage, roundNumber} from '../helpers/formulas';
 import AmortizationSchedule from '../components/monthlyDetails';
+import PieChart from '@src/ui/screens/components/piechart';
 
 const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
   route,
   navigation,
 }) => {
   const kittenStyle = useStyleSheet(kittenStyles);
+  const theme = useTheme();
 
   const {
     emi = 0,
     interest = 0,
     loanamount: loanAmount = 0,
     period = 0,
-    selectedChip,
     investmentAmount = 0,
     investmentDate = '',
     isBankingDetails,
@@ -81,8 +75,46 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
     return schedule;
   };
 
+  const data = [
+    {
+      name: 'Total interest',
+      percentage: calculatePercentage(totalInterest, maturityValue, 'A'),
+      color: 'rgba(131, 167, 234, 1)',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 15,
+    },
+    {
+      name: 'Maturity Amount',
+      percentage: calculatePercentage(totalInterest, maturityValue, 'B'),
+      color: '#F00',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 15,
+    },
+  ];
+
+  const chartConfig = {
+    backgroundGradientFrom: 'pink',
+    backgroundGradientTo: 'yellow',
+    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+  };
+
   return (
     <Layout style={styles.outerContainer}>
+      {isBankingDetails && (
+        <Layout
+          style={[
+            styles.chartContainer,
+            {backgroundColor: theme['color-basic-200']},
+          ]}>
+          <PieChart
+            data={data}
+            width={Dimensions.get('screen').width * 0.9}
+            height={100}
+            chartConfig={chartConfig}
+            accessor="percentage"
+          />
+        </Layout>
+      )}
       {screenData.map((data, index) => (
         <HorizontalInfo
           key={index}
@@ -117,6 +149,7 @@ const styles = StyleSheet.create({
   },
   chartContainer: {
     paddingVertical: 10,
+    marginHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, Layout} from '@ui-kitten/components';
+import {Text, Layout, useTheme} from '@ui-kitten/components';
 import {StyleSheet} from 'react-native';
 import {HorizontalInfoProps} from '@src/types';
 
@@ -9,6 +9,7 @@ const HorizontalInfo = ({
   showDivider,
   isHorizontal = true,
 }: HorizontalInfoProps) => {
+  const theme = useTheme();
   if (isHorizontal) {
     return (
       <Layout style={styles.container}>
@@ -27,7 +28,9 @@ const HorizontalInfo = ({
         <Text category="p1" style={styles.cardTitle}>
           {title}
         </Text>
-        <Text category="s1" style={styles.cardValue}>
+        <Text
+          category="s1"
+          style={[styles.cardValue, {color: theme['color-primary-500']}]}>
           {value}
         </Text>
       </Layout>
@@ -58,7 +61,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 8,
     alignItems: 'center',
-    marginVertical: 10,
+    marginBottom: 6,
   },
   cardTitle: {
     fontWeight: 'bold',

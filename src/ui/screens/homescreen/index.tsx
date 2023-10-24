@@ -1,14 +1,15 @@
 import React from 'react';
-import {StyleSheet, ScrollView, TouchableOpacity, Image} from 'react-native';
+import {StyleSheet, ScrollView, TouchableOpacity} from 'react-native';
 import {Icon, Layout, Text, useStyleSheet} from '@ui-kitten/components';
-import {AppScreenProps} from '@src/types';
+import {AppScreenProps, HomeScreenSectionData} from '@src/types';
+import {SCREEN_UI_DATA} from '@src/ui/screendata/screendata';
 
 const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
   route,
   navigation,
 }) => {
   const kittenStyle = useStyleSheet(kittenStyles);
-  const sections = [
+  const sections: HomeScreenSectionData[] = [
     {
       title: 'Emi Calculators',
       data: [
@@ -20,22 +21,25 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
     {
       title: 'Banking Calculators',
       data: [
-        {key: 'FD Calculator', screen: 'FDCalculator', icon: ''},
-        {key: 'RD Calculator', screen: 'RDCalculator', icon: ''},
-        {key: 'PPF Calculator', screen: 'PPFCalculator', icon: ''},
+        {key: 'FD Calculator', screen: 'FdCalculator', icon: ''},
+        {key: 'RD Calculator', screen: 'RdCalculator', icon: ''},
+        {key: 'PPF Calculator', screen: 'PpfCalculator', icon: ''},
         // Add more items for List
       ],
     },
     // Add more sections
   ];
 
-  const onItemPress = (item: any) => {
-    navigation.navigate('FdCalculator', {
-      screenTitle: 'FdCalculator',
-    });
+  const onItemPress = (section: string, item: any) => {
+    if (section === 'Emi Calculators') {
+      navigation.navigate(item.screen);
+    } else {
+      //@ts-ignore
+      navigation.navigate('FdCalculator', SCREEN_UI_DATA[item?.screen]);
+    }
   };
 
-  const renderSection = (section: any, index: number) => {
+  const renderSection = (section: HomeScreenSectionData, index: number) => {
     const items = section.data;
     const maxItemsPerRow = 2;
     const rows = Math.ceil(items.length / maxItemsPerRow);
@@ -52,12 +56,8 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
             <TouchableOpacity
               key={itemIndex}
               style={styles.gridItem}
-              onPress={() => onItemPress(item)}>
-              <Icon
-                style={{height: 40, width: 40}}
-                fill="#8F9BB3"
-                name="star"
-              />
+              onPress={() => onItemPress(section?.title, item)}>
+              <Icon style={styles.iconStyle} fill="#8F9BB3" name="star" />
               <Text style={styles.itemTextStyle}>{item.key}</Text>
             </TouchableOpacity>
           ))}
@@ -68,20 +68,18 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
     }
 
     return (
-      <TouchableOpacity
-        key={index}
-        style={kittenStyle.card}
-        onPress={() => onItemPress(section.data[0])} // Navigate based on the first item
-      >
+      <Layout key={index} style={kittenStyle.card}>
         <Text style={styles.sectionHeader}>{section.title}</Text>
         {renderedRows}
-      </TouchableOpacity>
+      </Layout>
     );
   };
 
   return (
     <ScrollView style={styles.container}>
-      {sections.map((section, index) => renderSection(section, index))}
+      {sections.map((section: HomeScreenSectionData, index: number) =>
+        renderSection(section, index),
+      )}
     </ScrollView>
   );
 };
@@ -128,6 +126,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     paddingTop: 5,
   },
+  iconStyle: {height: 40, width: 40},
 });
 
 export default HomeScreen;

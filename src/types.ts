@@ -44,6 +44,16 @@ export type AppStackParamList = {
   EmiCalculator: undefined;
   FdCalculator: {
     screenTitle: string;
+    input1Label: string;
+    input1Placeholder: string;
+    input2Label: string;
+    input2Placeholder: string;
+    input3Label: string;
+    input3Placeholder: string;
+    input4Label: string;
+    input4Placeholder: string;
+    input5Label: string;
+    input5Placeholder: string;
   };
   DetailScreen: CommonScreenProps;
   InDepthDetailScreen: CommonScreenProps;
@@ -66,6 +76,15 @@ export type AppScreenProps<T extends keyof AppStackParamList> = {
     NativeStackNavigationProp<AppStackParamList, T>,
     NativeStackNavigationProp<RootStackParamList>
   >;
+};
+
+export type HomeScreenSectionData = {
+  title: string;
+  data: Array<{
+    key: string;
+    screen: string;
+    icon: string;
+  }>;
 };
 
 export type ChipsProps = {

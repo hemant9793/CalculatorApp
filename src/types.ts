@@ -44,6 +44,7 @@ export type AppStackParamList = {
   EmiCalculator: undefined;
   FdCalculator: {
     screenTitle: string;
+    name: string;
     input1Label: string;
     input1Placeholder: string;
     input2Label: string;

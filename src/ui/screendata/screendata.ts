@@ -1,6 +1,7 @@
 export const SCREEN_UI_DATA = {
   FdCalculator: {
     screenTitle: 'FdCalculator',
+    name: 'FD Calculator',
     input1Label: 'Deposit amount',
     input1Placeholder: 'Enter Deposit amount',
     input2Label: 'Rate of interest',
@@ -14,6 +15,7 @@ export const SCREEN_UI_DATA = {
   },
   RdCalculator: {
     screenTitle: 'RdCalculator',
+    name: 'RD Calculator',
     input1Label: 'Monthly Deposit',
     input1Placeholder: 'Enter Monthly Deposit',
     input2Label: 'Rate of interest',
@@ -27,6 +29,7 @@ export const SCREEN_UI_DATA = {
   },
   PpfCalculator: {
     screenTitle: 'PpfCalculator',
+    name: 'PPF Calculator',
     input1Label: 'Deposit amount',
     input1Placeholder: 'Enter Deposit amount',
     input2Label: 'Rate of interest',

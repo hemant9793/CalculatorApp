@@ -1,29 +1,51 @@
 import React from 'react';
 import {StyleSheet, ScrollView, TouchableOpacity} from 'react-native';
-import {Icon, Layout, Text, useStyleSheet} from '@ui-kitten/components';
+import {Layout, Text, useStyleSheet, useTheme} from '@ui-kitten/components';
 import {AppScreenProps, HomeScreenSectionData} from '@src/types';
-import {SCREEN_UI_DATA} from '@src/ui/screendata/screendata';
+import {SCREEN_NAMES, SCREEN_UI_DATA} from '@src/ui/screendata/screendata';
+import SvgInCircle from '@src/ui/screens/components/circularSvg';
 
 const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
   route,
   navigation,
 }) => {
   const kittenStyle = useStyleSheet(kittenStyles);
+  const theme = useTheme();
   const sections: HomeScreenSectionData[] = [
     {
       title: 'Emi Calculators',
       data: [
-        {key: 'Emi Calculator', screen: 'EmiCalculator', icon: ''},
-        {key: 'Compare Loans', screen: 'CompareLoansScreen', icon: ''},
+        {
+          key: 'Emi Calculator',
+          screen: 'EmiCalculator',
+          icon: SCREEN_NAMES.EmiCalculator,
+        },
+        {
+          key: 'Compare Loans',
+          screen: 'CompareLoansScreen',
+          icon: SCREEN_NAMES.CompareLoansScreen,
+        },
         // Add more items for List
       ],
     },
     {
       title: 'Banking Calculators',
       data: [
-        {key: 'FD Calculator', screen: 'FdCalculator', icon: ''},
-        {key: 'RD Calculator', screen: 'RdCalculator', icon: ''},
-        {key: 'PPF Calculator', screen: 'PpfCalculator', icon: ''},
+        {
+          key: 'FD Calculator',
+          screen: 'FdCalculator',
+          icon: SCREEN_NAMES.FdCalculator,
+        },
+        {
+          key: 'RD Calculator',
+          screen: 'RdCalculator',
+          icon: SCREEN_NAMES.RdCalculator,
+        },
+        {
+          key: 'PPF Calculator',
+          screen: 'PpfCalculator',
+          icon: SCREEN_NAMES.PpfdCalculator,
+        },
         // Add more items for List
       ],
     },
@@ -51,13 +73,24 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
       const rowItems = items.slice(start, end);
 
       const rowContent = (
-        <Layout style={styles.gridContainer} key={`row_${i}`}>
+        <Layout
+          style={[
+            styles.gridContainer,
+            {backgroundColor: theme['color-basic-500']},
+          ]}
+          key={`row_${i}`}>
           {rowItems.map((item: any, itemIndex: number) => (
             <TouchableOpacity
               key={itemIndex}
               style={styles.gridItem}
               onPress={() => onItemPress(section?.title, item)}>
-              <Icon style={styles.iconStyle} fill="#8F9BB3" name="star" />
+              <SvgInCircle
+                width={50}
+                height={50}
+                color={'#ffffff'}
+                name={item.icon}
+              />
+
               <Text style={styles.itemTextStyle}>{item.key}</Text>
             </TouchableOpacity>
           ))}
@@ -69,7 +102,14 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
 
     return (
       <Layout key={index} style={kittenStyle.card}>
-        <Text style={styles.sectionHeader}>{section.title}</Text>
+        <Text
+          appearance="alternative"
+          style={[
+            styles.sectionHeader,
+            {backgroundColor: theme['color-primary-500']},
+          ]}>
+          {section.title}
+        </Text>
         {renderedRows}
       </Layout>
     );
@@ -93,7 +133,7 @@ const kittenStyles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 4,
     elevation: 4,
-    padding: 10,
+    // padding: 10,
   },
 });
 
@@ -106,8 +146,10 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 8,
+
+    // marginBottom: 8,
     textAlign: 'center',
+    padding: 5,
   },
   gridContainer: {
     flexDirection: 'row',

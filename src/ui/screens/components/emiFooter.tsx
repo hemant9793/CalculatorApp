@@ -40,7 +40,10 @@ const EmiFooter = ({
         <Button
           status="primary"
           onPress={onCalculatePress}
-          style={kittenStyle.button}>
+          style={[
+            kittenStyle.button,
+            leftButtonVisible ? {} : {marginHorizontal: 11},
+          ]}>
           {rightTitle ? rightTitle : STRINGS.CALCULATE_BUTTON}
         </Button>
       )}

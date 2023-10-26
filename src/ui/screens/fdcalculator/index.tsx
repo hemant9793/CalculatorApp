@@ -13,11 +13,12 @@ import {
 } from '@ui-kitten/components';
 import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 
-import {STRINGS} from './strings';
-
 import {Chips} from '../components';
 import {
+  addTimeToDate,
+  calculateAnnualPpfPayment,
   calculateFDMaturityAmount,
+  calculatePPFMaturity,
   calculateRDMaturity,
   roundNumber,
 } from '../helpers/formulas';
@@ -33,6 +34,9 @@ const COMPOUNDING_OPTIONS = [
   'Compounded Monthly',
   'Simple Interest',
 ];
+
+const PPF_OPTIONS = ['Yearly', 'Half Yearly', 'Quarterly', 'Monthly'];
+const PPF_YEARS = ['Years'];
 
 const WIDTH = Dimensions.get('screen').width;
 const ALL_MONTHS = {
@@ -67,9 +71,7 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
     input3Label,
     input3Placeholder,
     input4Label,
-    input4Placeholder,
     input5Label,
-    input5Placeholder,
   } = route?.params;
 
   const [principal, setPrincipal] = useState('');
@@ -84,6 +86,11 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
   const [tenureError, setTenureError] = useState('');
 
   const [date, setDate] = useState(new Date(Date.now()));
+
+  const [ppfLabel1, setPpfLabel1] = useState(input1Label);
+
+  const selectOptions =
+    screenTitle === 'PpfCalculator' ? PPF_OPTIONS : COMPOUNDING_OPTIONS;
 
   const onChange = (event: any, selectedDate: any) => {
     setDate(selectedDate);
@@ -103,6 +110,7 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
   };
 
   function formatDateToCustomFormat(selectedDate: any) {
+    console.log('formatDateToCustomFormat -> selectedDate', selectedDate);
     const dateString = new Date(selectedDate).toLocaleDateString('en-IN');
 
     const dateParts = dateString.split('/');
@@ -151,6 +159,7 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
         roundNumber(principalAmount),
         roundNumber(maturedRd),
         totalInterest,
+        loanTenureMonths,
       );
       return;
     } else if (screenTitle === SCREEN_NAMES.FdCalculator) {
@@ -166,7 +175,27 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
         principalAmount,
         maturedFd,
         roundNumber(maturedFd - principalAmount),
+        loanTenureMonths,
       );
+    } else if (screenTitle === SCREEN_NAMES.PpfdCalculator) {
+      const annualPayment = calculateAnnualPpfPayment(
+        //@ts-ignore
+        selectOptions[selectedIndex - 1],
+        principalAmount,
+      );
+      const maturedPpf = calculatePPFMaturity(
+        annualPayment ?? 0,
+        parseFloat(interestRate),
+        parseFloat(tenure),
+      );
+      const investedAMount = (annualPayment ?? 0) * parseInt(tenure);
+      navigateToScreen(
+        investedAMount,
+        maturedPpf,
+        roundNumber(maturedPpf - investedAMount),
+        loanTenureMonths,
+      );
+      console.log('calculateValue -> maturedPpf', maturedPpf);
     }
   };
 
@@ -185,15 +214,20 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
     principalAmount: number,
     maturedFd: number,
     totalInterest: number,
+    loanTenure: number,
   ) => {
     navigation.navigate('InDepthDetailScreen', {
       investmentAmount: roundNumber(principalAmount),
       investmentDate: formatDateToCustomFormat(date),
-      maturityDate: '12,12,12',
+      maturityDate: formatDateToCustomFormat(addTimeToDate(date, loanTenure)),
       maturityValue: roundNumber(maturedFd),
       isBankingDetails: true,
       totalInterest: totalInterest,
     });
+  };
+
+  const getPpfLabel1 = (option: string) => {
+    setPpfLabel1(`Enter ${option} deposit amount`);
   };
 
   return (
@@ -201,7 +235,9 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
       <Layout style={[styles.inputContainer, styles.card]}>
         <Input
           label={input1Label}
-          placeholder={input1Placeholder}
+          placeholder={
+            screenTitle == 'PpfCalculator' ? ppfLabel1 : input1Placeholder
+          }
           keyboardType="numeric"
           value={principal.toString()}
           style={styles.input}
@@ -217,7 +253,7 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
           onChangeText={setInterestRate}
           caption={interestRateError}
         />
-        {screenTitle !== 'PpfCalculator' && (
+        {input3Label && (
           <Layout style={[styles.periodContainer, themedBackground]}>
             <Input
               label={input3Label}
@@ -229,7 +265,9 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
               caption={tenureError}
             />
             <Chips
-              chipData={MONTH_OR_YEARS}
+              chipData={
+                screenTitle == 'PpfCalculator' ? PPF_YEARS : MONTH_OR_YEARS
+              }
               selectedChip={selectedMOrY}
               containerStyle={{
                 ...styles.mOrYChipContainer,
@@ -246,17 +284,21 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
             style={[
               styles.selectContainer,
               themedBackground,
-              {minWidth: WIDTH * 0.835},
+              {minWidth: WIDTH * 0.88},
             ]}>
             <Select
               selectedIndex={selectedIndex}
               label={input4Label}
-              status="primary"
+              // status="primary"
               size="medium"
               //@ts-ignore
-              value={COMPOUNDING_OPTIONS[selectedIndex - 1]}
-              onSelect={index => setSelectedIndex(index)}>
-              {COMPOUNDING_OPTIONS.map((option: string, index: number) => (
+              value={selectOptions[selectedIndex - 1]}
+              onSelect={index => {
+                setSelectedIndex(index);
+                //@ts-ignore
+                getPpfLabel1(selectOptions[index - 1]);
+              }}>
+              {selectOptions.map((option: string, index: number) => (
                 <SelectItem
                   style={themedBackground}
                   title={option}
@@ -266,31 +308,26 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
             </Select>
           </Layout>
         )}
-        <Layout style={kittenStyle.calendarContainer}>
-          <Layout>
+        <TouchableOpacity
+          style={kittenStyle.calendarContainer}
+          onPress={showDatepicker}>
+          <Layout style={styles.investDate}>
             <Text style={kittenStyle.investmentTitleTextStyle}>
               {input5Label}
             </Text>
-          </Layout>
-          <TouchableOpacity
-            onPress={showDatepicker}
-            style={[
-              styles.investmentDateContainer,
-              {
-                borderColor: theme['color-primary-500'],
-              },
-            ]}>
             <Text category="p1" style={styles.investmentDateTextStyle}>
               {formatDateToCustomFormat(date)}
             </Text>
-            <Icon name="arrow-down-outline" style={{height: 20, width: 22}} />
-          </TouchableOpacity>
-        </Layout>
+          </Layout>
+          <Layout style={styles.iconContainer}>
+            <Icon name="chevron-down-outline" style={styles.icon} />
+          </Layout>
+        </TouchableOpacity>
       </Layout>
 
       <EmiFooter
         containerStyle={styles.footerContainer}
-        leftButtonVisible={false}
+        // leftButtonVisible={false}
         onResetPress={reset}
         onCalculatePress={calculateValue}
       />
@@ -301,28 +338,27 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
 const kittenStyles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 10,
   },
   btn: {
     backgroundColor: 'color-primary-500',
   },
   investmentTitleTextStyle: {
-    fontWeight: 'bold',
-    flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 8.5,
     paddingHorizontal: 13,
     textAlign: 'left',
-    backgroundColor: 'color-basic-500',
   },
   calendarContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: 'color-basic-300',
-    minWidth: WIDTH * 0.83,
+    minWidth: WIDTH * 0.88,
     marginTop: 14,
-
     borderRadius: 5,
+    borderWidth: 1.5,
+    borderColor: 'color-basic-400',
+    // flex: 1,
   },
 });
 
@@ -345,7 +381,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: 'white',
     alignItems: 'center',
-    padding: 16,
+    padding: 10,
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
@@ -363,22 +399,22 @@ const styles = StyleSheet.create({
   selectContainer: {
     marginTop: 10,
   },
-
+  investDate: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 5,
+  },
   investmentDateTextStyle: {
     fontWeight: 'bold',
     textAlign: 'center',
-    marginRight: 8,
   },
-
-  investmentDateContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
+  icon: {height: 25, width: 25},
+  iconContainer: {
     flex: 1,
-    flexDirection: 'row',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderWidth: 1,
     borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingLeft: 58,
   },
   footerContainer: {marginHorizontal: 8},
 });

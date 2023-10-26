@@ -49,21 +49,44 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
         // Add more items for List
       ],
     },
+    {
+      title: 'Other Calculators',
+      data: [
+        {
+          key: 'Amount to words',
+          screen: 'AmountToWordsScreen',
+          icon: SCREEN_NAMES.FdCalculator,
+        },
+        {
+          key: 'RD Calculator',
+          screen: 'RdCalculator',
+          icon: SCREEN_NAMES.RdCalculator,
+        },
+        {
+          key: 'PPF Calculator',
+          screen: 'PpfCalculator',
+          icon: SCREEN_NAMES.PpfdCalculator,
+        },
+        // Add more items for List
+      ],
+    },
     // Add more sections
   ];
 
   const onItemPress = (section: string, item: any) => {
     if (section === 'Emi Calculators') {
       navigation.navigate(item.screen);
-    } else {
+    } else if (section === 'Banking Calculators') {
       //@ts-ignore
       navigation.navigate('FdCalculator', SCREEN_UI_DATA[item?.screen]);
+    } else {
+      navigation.navigate(item.screen);
     }
   };
 
   const renderSection = (section: HomeScreenSectionData, index: number) => {
     const items = section.data;
-    const maxItemsPerRow = 2;
+    const maxItemsPerRow = 3;
     const rows = Math.ceil(items.length / maxItemsPerRow);
     const renderedRows = [];
 
@@ -158,7 +181,9 @@ const styles = StyleSheet.create({
   gridItem: {
     flex: 1,
     alignItems: 'center',
-    padding: 14,
+    paddingVertical: 14,
+    margin: 2,
+    // backgroundColor: 'red',
   },
   itemImage: {
     width: 100,
@@ -166,7 +191,7 @@ const styles = StyleSheet.create({
   },
   itemTextStyle: {
     fontWeight: '500',
-    paddingTop: 5,
+    paddingTop: 8,
   },
   iconStyle: {height: 40, width: 40},
 });

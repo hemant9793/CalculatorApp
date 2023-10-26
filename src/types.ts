@@ -42,6 +42,7 @@ export type CommonScreenProps = {
 export type AppStackParamList = {
   HomeScreen: undefined;
   EmiCalculator: undefined;
+  AmountToWordsScreen: undefined;
   FdCalculator: {
     screenTitle: string;
     name: string;

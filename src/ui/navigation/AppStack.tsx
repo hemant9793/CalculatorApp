@@ -11,6 +11,7 @@ import InDepthDetailScreen from '@src/ui/screens/indepthsetailscreen';
 import CompareLoansScreen from '@src/ui/screens/compareloan';
 import LoanComparisonDetails from '@src/ui/screens/loancomparisondetail';
 import FdCalculator from '@src/ui/screens/fdcalculator';
+import AmountToWordsScreen from '@src/ui/screens/amounttowords';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -37,6 +38,10 @@ export function AppStack() {
       <Stack.Screen
         name="LoanComparisonDetails"
         component={LoanComparisonDetails}
+      />
+      <Stack.Screen
+        name="AmountToWordsScreen"
+        component={AmountToWordsScreen}
       />
     </Stack.Navigator>
   );

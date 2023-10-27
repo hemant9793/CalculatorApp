@@ -24,7 +24,11 @@ export function AppStack() {
       //@ts-ignore
       screenOptions={commonNavigationStyles(theme)}>
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
-      <Stack.Screen name="EmiCalculator" component={EmiCalculator} />
+      <Stack.Screen
+        name="EmiCalculator"
+        component={EmiCalculator}
+        options={({route}) => ({title: route.params.name})}
+      />
       <Stack.Screen
         name="FdCalculator"
         component={FdCalculator}

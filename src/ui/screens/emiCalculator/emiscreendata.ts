@@ -1,27 +1,27 @@
-export const SCREEN_UI_DATA = {
-  FdCalculator: {
-    screenTitle: 'FdCalculator',
-    name: 'FD Calculator',
-    input1Label: 'Deposit amount',
-    input1Placeholder: 'Enter Deposit amount',
-    input2Label: 'Rate of interest',
+export const SCREEN_EMI_UI_DATA = {
+  EmiCalculator: {
+    screenTitle: 'EmiCalculator',
+    name: 'EMI Calculator',
+    input1Label: 'Loan amount',
+    input1Placeholder: 'Enter Loan amount',
+    input2Label: 'Interest',
     input2Placeholder: 'Enter interest rate',
-    input3Label: 'Tenure',
+    input3Label: 'Period',
     input3Placeholder: 'Enter Period',
     input4Label: 'Frequency',
     input4Placeholder: 'Frequency',
     input5Label: 'Investment Date -',
     input5Placeholder: '',
   },
-  RdCalculator: {
-    screenTitle: 'RdCalculator',
-    name: 'RD Calculator',
-    input1Label: 'Monthly Deposit',
-    input1Placeholder: 'Enter Monthly Deposit',
+  HomeLoanCalculator: {
+    screenTitle: 'HomeLoanCalculator',
+    name: 'Home Loan Calculator',
+    input1Label: 'Home Loan amount',
+    input1Placeholder: 'Enter Home Loan amount',
     input2Label: 'Rate of interest',
     input2Placeholder: 'Enter interest rate',
-    input3Label: 'Saving term',
-    input3Placeholder: 'Enter term',
+    input3Label: 'Period',
+    input3Placeholder: 'Enter Period',
     input4Label: '',
     input4Placeholder: '',
     input5Label: 'Investment Date -',
@@ -45,7 +45,6 @@ export const SCREEN_UI_DATA = {
 
 export const SCREEN_NAMES = {
   EmiCalculator: 'EmiCalculator',
-  HomeLoanCalculator: 'HomeLoanCalculator',
   DetailScreen: 'DetailScreen',
   InDepthDetailScreen: 'InDepthDetailScreen',
   CompareLoansScreen: 'CompareLoansScreen',

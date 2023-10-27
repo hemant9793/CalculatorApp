@@ -7,6 +7,7 @@ import Safebox from '@src/assets/svg/safebox.svg';
 import Comparison from '@src/assets/svg/comparison.svg';
 import Rupee from '@src/assets/svg/rupee.svg';
 import Rd from '@src/assets/svg/rd.svg';
+import Home from '@src/assets/svg/home.svg';
 import Alphabetmoney from '@src/assets/svg/alphabetmoney.svg';
 import FinancialPlanning from '@src/assets/svg/financialPlanning.svg';
 import {SCREEN_NAMES} from '@src/ui/screendata/screendata';
@@ -46,7 +47,9 @@ const SvgInCircle: React.FC<SvgInCircleProps> = ({
           <Alphabetmoney width={width - 6} height={height - 6} color={color} />
         );
       case SCREEN_NAMES.MoneyTotallerScreen:
-        return <Rupee width={width - 6} height={height - 6} color={color} />;
+        return <Rupee width={width - 10} height={height - 10} color={color} />;
+      case SCREEN_NAMES.HomeLoanCalculator:
+        return <Home width={width - 10} height={height - 10} color={color} />;
       case SCREEN_NAMES.PpfdCalculator:
         return (
           <FinancialPlanning

@@ -4,6 +4,7 @@ import {Layout, Text, useStyleSheet, useTheme} from '@ui-kitten/components';
 import {AppScreenProps, HomeScreenSectionData} from '@src/types';
 import {SCREEN_NAMES, SCREEN_UI_DATA} from '@src/ui/screendata/screendata';
 import SvgInCircle from '@src/ui/screens/components/circularSvg';
+import {SCREEN_EMI_UI_DATA} from '@src/ui/screens/emiCalculator/emiscreendata';
 
 const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
   route,
@@ -19,6 +20,11 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
           key: 'Emi Calculator',
           screen: 'EmiCalculator',
           icon: SCREEN_NAMES.EmiCalculator,
+        },
+        {
+          key: 'Home Loan Calculator',
+          screen: 'HomeLoanCalculator',
+          icon: SCREEN_NAMES.HomeLoanCalculator,
         },
         {
           key: 'Compare Loans',
@@ -75,7 +81,8 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
 
   const onItemPress = (section: string, item: any) => {
     if (section === 'Emi Calculators') {
-      navigation.navigate(item.screen);
+      //@ts-ignore
+      navigation.navigate('EmiCalculator', SCREEN_EMI_UI_DATA[item?.screen]);
     } else if (section === 'Banking Calculators') {
       //@ts-ignore
       navigation.navigate('FdCalculator', SCREEN_UI_DATA[item?.screen]);
@@ -156,7 +163,6 @@ const kittenStyles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 4,
     elevation: 4,
-    // padding: 10,
   },
 });
 
@@ -186,15 +192,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     margin: 2,
-    // backgroundColor: 'red',
   },
   itemImage: {
     width: 100,
     height: 100,
   },
   itemTextStyle: {
-    fontWeight: '500',
     paddingTop: 8,
+    textAlign: 'center',
   },
   iconStyle: {height: 40, width: 40},
 });

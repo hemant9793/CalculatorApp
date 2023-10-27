@@ -39,25 +39,27 @@ export type CommonScreenProps = {
   maturityDate?: string;
 };
 
+export type VariableScreenParams = {
+  screenTitle: string;
+  name: string;
+  input1Label: string;
+  input1Placeholder: string;
+  input2Label: string;
+  input2Placeholder: string;
+  input3Label: string;
+  input3Placeholder: string;
+  input4Label: string;
+  input4Placeholder: string;
+  input5Label: string;
+  input5Placeholder: string;
+};
+
 export type AppStackParamList = {
   HomeScreen: undefined;
-  EmiCalculator: undefined;
+  EmiCalculator: VariableScreenParams;
   AmountToWordsScreen: undefined;
   MoneyTotallerScreen: undefined;
-  FdCalculator: {
-    screenTitle: string;
-    name: string;
-    input1Label: string;
-    input1Placeholder: string;
-    input2Label: string;
-    input2Placeholder: string;
-    input3Label: string;
-    input3Placeholder: string;
-    input4Label: string;
-    input4Placeholder: string;
-    input5Label: string;
-    input5Placeholder: string;
-  };
+  FdCalculator: VariableScreenParams;
   DetailScreen: CommonScreenProps;
   InDepthDetailScreen: CommonScreenProps;
   CompareLoansScreen: undefined;

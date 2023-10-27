@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
 import {PieChart as RNPieChart} from 'react-native-chart-kit';
-import {Card, useTheme} from '@ui-kitten/components';
+import {Card, Layout, Text, useTheme} from '@ui-kitten/components';
 import {PieChartProps} from '@src/types';
 
 const PieChart = ({
@@ -14,7 +14,7 @@ const PieChart = ({
   const theme = useTheme();
 
   return (
-    <Card
+    <Layout
       style={[styles.container, {backgroundColor: theme['color-basic-500']}]}>
       <RNPieChart
         data={data}
@@ -26,15 +26,14 @@ const PieChart = ({
         paddingLeft={'0'}
         center={[-30, 0]}
         absolute
+        style={{marginHorizontal: 10}}
       />
-    </Card>
+    </Layout>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 10,
-
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 5,

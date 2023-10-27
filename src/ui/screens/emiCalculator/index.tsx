@@ -8,11 +8,12 @@ import {
   useTheme,
 } from '@ui-kitten/components';
 import {Chips} from '../components';
-import EmiFooter from './components/emiFooter'; // Import the EmiFooter component
 
 import {STRINGS} from './strings';
 import {calculateEMI, calculatePrincipal} from '../helpers/formulas';
 import {AppScreenProps} from '@src/types';
+import EmiFooter from '@src/ui/screens/components/emiFooter';
+import {SCREEN_NAMES} from '@src/ui/screens/emiCalculator/emiscreendata';
 
 const HEADER_CHIPS = ['EMI', 'Loan Amount', 'Interest', 'Period'];
 const MONTH_OR_YEARS = ['Years', 'Months'];
@@ -23,6 +24,20 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
 }) => {
   const kittenStyle = useStyleSheet(kittenStyles);
   const theme = useTheme();
+
+  const {
+    screenTitle,
+    name,
+    input1Label,
+    input1Placeholder,
+    input2Label,
+    input2Placeholder,
+    input3Label,
+    input3Placeholder,
+    input4Label,
+    input5Label,
+  } = route?.params;
+  console.log('route?.params', route?.params);
 
   const [principal, setPrincipal] = useState('');
   const [interestRate, setInterestRate] = useState('');
@@ -173,31 +188,39 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
 
   return (
     <Layout style={kittenStyle.container}>
-      <Chips
-        chipData={HEADER_CHIPS}
-        selectedChip={selectedChip}
-        onChipPress={onChipPress}
-      />
-      <Layout style={styles.inputContainer}>
+      {screenTitle === SCREEN_NAMES.EmiCalculator && (
+        <Chips
+          chipData={HEADER_CHIPS}
+          selectedChip={selectedChip}
+          onChipPress={onChipPress}
+        />
+      )}
+      <Layout style={[styles.inputContainer, styles.card]}>
         {selectedChip !== STRINGS.PRINCIPAL_AMOUNT_LABEL && (
           <Input
-            label={STRINGS.PRINCIPAL_AMOUNT_LABEL}
-            placeholder={STRINGS.PRINCIPAL_AMOUNT_PLACEHOLDER}
+            label={input1Label}
+            placeholder={input1Placeholder}
             keyboardType="numeric"
             value={principal}
             style={styles.input}
-            onChangeText={setPrincipal}
+            onChangeText={(text: string) => {
+              setPrincipal(text);
+              setPrincipalError('');
+            }}
             caption={principalError}
           />
         )}
         {selectedChip !== STRINGS.INTEREST_RATE_LABEL && (
           <Input
-            label={STRINGS.INTEREST_RATE_LABEL}
-            placeholder={STRINGS.INTEREST_RATE_PLACEHOLDER}
+            label={input2Label}
+            placeholder={input2Placeholder}
             keyboardType="numeric"
             value={interestRate}
             style={styles.input}
-            onChangeText={setInterestRate}
+            onChangeText={(text: string) => {
+              setInterestRate(text);
+              setInterestRateError('');
+            }}
             caption={interestRateError}
           />
         )}
@@ -206,34 +229,32 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
           <Input
             label={() => (
               <Text style={{color: theme['color-basic-900']}}>
-                {STRINGS.EMI_LABEL}
+                {input1Label}
               </Text>
             )}
-            caption={() => {
-              return (
-                <Text style={{color: 'red', fontWeight: 'bold'}}>
-                  {emiError}
-                </Text>
-              );
-            }}
-            // label={STRINGS.EMI_LABEL}
-            placeholder={STRINGS.EMI_PLACEHOLDER}
+            caption={emiError}
+            placeholder={input1Placeholder}
             keyboardType="numeric"
             value={enteredEmi}
             style={styles.input}
-            onChangeText={setEnteredEmi}
-            // caption={emiError}
+            onChangeText={(text: string) => {
+              setEnteredEmi(text);
+              setEmiError('');
+            }}
           />
         )}
         {selectedChip !== STRINGS.LOAN_TENURE_LABEL && (
-          <Layout style={styles.periodContainer}>
+          <Layout style={[styles.periodContainer, kittenStyle.whiteBackGround]}>
             <Input
-              label={STRINGS.LOAN_TENURE_LABEL}
-              placeholder={STRINGS.LOAN_TENURE_PLACEHOLDER}
+              label={input3Label}
+              placeholder={input3Placeholder}
               keyboardType="numeric"
               value={tenure}
               style={{...styles.input, flex: 1}}
-              onChangeText={setTenure}
+              onChangeText={(text: string) => {
+                setTenure(text);
+                setTenureError('');
+              }}
               caption={tenureError}
             />
             <Chips
@@ -241,6 +262,7 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
               selectedChip={selectedMOrY}
               containerStyle={{
                 ...styles.mOrYChipContainer,
+                ...kittenStyle.whiteBackGround,
                 ...(tenureError ? {marginBottom: 20} : {marginBottom: 5}),
               }}
               onChipPress={onMOrYChipPress}
@@ -250,17 +272,6 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
       </Layout>
 
       <EmiFooter onResetPress={reset} onCalculatePress={calculateValue} />
-
-      {/* {calculatedVal ? (
-        <Layout style={styles.card}>
-          <Text category="h6" style={styles.cardTitle}>
-            {STRINGS.EMI_LABEL}
-          </Text>
-          <Text category="s1" style={styles.cardValue}>
-            {calculatedVal}
-          </Text>
-        </Layout>
-      ) : null} */}
     </Layout>
   );
 };
@@ -268,11 +279,15 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
 const kittenStyles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 10,
   },
   btn: {
     backgroundColor: 'color-primary-500',
   },
+  whiteBackGround: {
+    backgroundColor: 'color-basic-500',
+  },
+  captionStyle: {color: 'red', fontSize: 12},
 });
 
 const styles = StyleSheet.create({
@@ -293,10 +308,8 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: 'white',
-    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
-    padding: 16,
+    padding: 10,
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},

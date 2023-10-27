@@ -35,7 +35,10 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
     {title: 'Loan Amount', value: loanAmount}, // Convert loanAmount to a string
     {title: 'Period', value: period},
     {title: 'Total Interest', value: (emi * period - loanAmount).toFixed(2)},
-    {title: 'Total Payment', value: emi * period - loanAmount + loanAmount},
+    {
+      title: 'Total Payment',
+      value: (emi * period - loanAmount + loanAmount).toFixed(2),
+    },
   ];
 
   const getSelectedChipValue = (selectedChip: string) => {
@@ -73,6 +76,7 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
     backgroundGradientFrom: 'pink',
     backgroundGradientTo: 'yellow',
     color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    style: {borderRadius: 10},
   };
 
   return (
@@ -121,6 +125,7 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
 const kittenStyles = StyleSheet.create({
   primaryText: {
     color: 'color-primary-500',
+    textAlign: 'center',
   },
   whiteBackground: {
     backgroundColor: 'color-basic-500',
@@ -135,6 +140,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    // backgroundColor: 'red',
   },
   card: {
     padding: 12,

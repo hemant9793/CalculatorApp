@@ -19,7 +19,9 @@ const Chips = ({
           onPress={() => onChipPress(chip)}
           style={[
             styles.chip,
-            selectedChip === chip ? kittenStyle.selectedChip : {},
+            selectedChip === chip
+              ? kittenStyle.selectedChip
+              : kittenStyle.whiteBG,
           ]}>
           <Text
             style={[selectedChip === chip ? kittenStyle.selectedChipText : {}]}>
@@ -36,8 +38,8 @@ const kittenStyles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  btn: {
-    backgroundColor: 'color-primary-500',
+  whiteBG: {
+    backgroundColor: 'color-basic-500',
   },
   selectedChip: {
     backgroundColor: 'color-primary-500',

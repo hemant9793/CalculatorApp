@@ -5,6 +5,7 @@ import {
   convertToWordInAmericanEnglish,
   convertToWordInIndianEnglish,
   convertToWordInHindi,
+  indianConversion,
 } from '@src/ui/screens/helpers/formulas';
 import {AppScreenProps} from '@src/types';
 
@@ -41,9 +42,7 @@ const AmountToWordsScreen: React.FC<AppScreenProps<'AmountToWordsScreen'>> = ({
   });
 
   const convertToWords = (inputAmount: string) => {
-    const indianEnlishAmount = convertToWordInIndianEnglish(
-      parseInt(inputAmount),
-    );
+    const indianEnlishAmount = indianConversion(parseInt(inputAmount));
     const hindiAmount = convertToWordInHindi(inputAmount);
     const billionAmount = convertToWordInAmericanEnglish(parseInt(inputAmount));
 
@@ -72,6 +71,7 @@ const AmountToWordsScreen: React.FC<AppScreenProps<'AmountToWordsScreen'>> = ({
           label={'Amount'}
           placeholder="Enter an amount"
           keyboardType="numeric"
+          maxLength={12}
           value={amount.toString()}
           style={styles.input}
           onChangeText={handleAmountChange}

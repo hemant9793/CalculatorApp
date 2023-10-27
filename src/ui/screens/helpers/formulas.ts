@@ -171,85 +171,198 @@ var b = [
   'ninety',
 ];
 
-export const convertToWordInIndianEnglish = (num: number) => {
-  if (!num) {
-    return 'Please Enter an Amount';
+const TEN = 10;
+const ONE_HUNDRED = 100;
+const ONE_THOUSAND = 1000;
+const ONE_LAC = 100000;
+const ONE_CRORE = 10000000;
+const ONE_ARAB = 1000000000;
+const ONE_KHARAB = 100000000000;
+const MAX = 9999999999999;
+
+const unitDigits = [
+  'ZERO',
+  'ONE',
+  'TWO',
+  'THREE',
+  'FOUR',
+  'FIVE',
+  'SIX',
+  'SEVEN',
+  'EIGHT',
+  'NINE',
+  'TEN',
+  'ELEVEN',
+  'TWELVE',
+  'THIRTEEN',
+  'FOURTEEN',
+  'FIFTEEN',
+  'SIXTEEN',
+  'SEVENTEEN',
+  'EIGHTEEN',
+  'NINETEEN',
+];
+const tensDigits = [
+  'ZERO',
+  'TEN',
+  'TWENTY',
+  'THIRTY',
+  'FORTY',
+  'FIFTY',
+  'SIXTY',
+  'SEVENTY',
+  'EIGHTY',
+  'NINETY',
+];
+
+function generateWords(number: number) {
+  let remainder, word;
+  let words = arguments[1];
+
+  // We’re done
+  if (number === 0) {
+    // console.log(words, 'words');
+    return !words ? 'ZERO' : words.join(' ').replace(/,$/, '');
   }
-  console.log('amountToWordsEnlish -> num', num);
-  if ((num = num.toString()).length > 9) {
-    return 'overflow';
+  // handle first time case: words will be undefined at first run
+  if (!words) {
+    words = [];
   }
-  let n = ('000000000' + num)
-    .substr(-9)
-    .match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
-  if (!n) {
-    return;
+  // If negative, prepend “minus”
+  if (number < 0) {
+    words.push('minus');
+    number = Math.abs(number);
   }
-  var str = '';
-  str +=
-    n[1] != 0
-      ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'crore '
-      : '';
-  str +=
-    n[2] != 0
-      ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'lakh '
-      : '';
-  str +=
-    n[3] != 0
-      ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'thousand '
-      : '';
-  str +=
-    n[4] != 0
-      ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'hundred '
-      : '';
-  str +=
-    n[5] != 0
-      ? (str != '' ? 'and ' : '') +
-        (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) +
-        'only '
-      : '';
-  return str;
-};
+
+  if (number < 20) {
+    remainder = 0;
+    word = unitDigits[number];
+  } else if (number < ONE_HUNDRED) {
+    remainder = number % TEN;
+    word = tensDigits[Math.floor(number / TEN)];
+    // In case of remainder, we need to handle it here to be able to add the “-”
+    if (remainder) {
+      word += '-' + unitDigits[remainder];
+      remainder = 0;
+    }
+  } else if (number < ONE_THOUSAND) {
+    remainder = number % ONE_HUNDRED;
+    word = generateWords(Math.floor(number / ONE_HUNDRED)) + ' HUNDRED';
+  } else if (number < ONE_LAC) {
+    remainder = number % ONE_THOUSAND;
+    word = generateWords(Math.floor(number / ONE_THOUSAND)) + ' THOUSAND,';
+  } else if (number < ONE_CRORE) {
+    remainder = number % ONE_LAC;
+    word = generateWords(Math.floor(number / ONE_LAC)) + ' LAC,';
+  } else if (number < ONE_ARAB) {
+    remainder = number % ONE_CRORE;
+    word = generateWords(Math.floor(number / ONE_CRORE)) + ' CRORE,';
+  } else if (number < ONE_KHARAB) {
+    // console.log(Math.floor(number / ONE_ARAB));
+    remainder = number % ONE_ARAB;
+    word = generateWords(Math.floor(number / ONE_ARAB)) + ' ARAB,';
+  } else if (number < MAX) {
+    remainder = number % ONE_KHARAB;
+    word = generateWords(Math.floor(number / ONE_KHARAB)) + ' KHARAB';
+  }
+  words.push(word);
+  return generateWords(remainder, words);
+}
+
+// characterCase can be of 3 types capital (default), lowercase or uppercase
+export function indianConversion(
+  number: number,
+  {characterCase = 'capital'} = {},
+) {
+  let words = generateWords(number);
+  // and can only be in uppercase if the characterCase = uppercase, otherwise it will always be of lowercase (in case of both capital and lowercase)
+  let and = 'and ';
+  if (characterCase === 'uppercase') {
+    and = 'AND ';
+  }
+
+  words = words.split(' ');
+
+  let transformedWords;
+  if (characterCase === 'capital') {
+    transformedWords = words.map(word => {
+      const index = word.indexOf('-');
+      if (index >= 0) {
+        let indexSeparatedWord = word
+          .split('-')
+          .map(word => word[0].toUpperCase() + word.slice(1).toLowerCase())
+          .join('-');
+        return indexSeparatedWord;
+      } else {
+        return word[0].toUpperCase() + word.slice(1).toLowerCase();
+      }
+    });
+    // word[0].toUpperCase() + word.slice(1).toLowerCase()
+    // return transformedWords;
+  } else if (characterCase === 'lowercase') {
+    transformedWords = words.map(word => word.toLowerCase());
+  } else {
+    transformedWords = words;
+  }
+
+  if (transformedWords.length <= 2) {
+    // dont add AND word if the sentence contains less than two words.
+    return transformedWords.join(' ') + '.';
+  }
+  // check if previous word has comma?
+  const index = transformedWords[transformedWords.length - 2].indexOf(',');
+  if (index >= 0) {
+    transformedWords[transformedWords.length - 2] = transformedWords[
+      transformedWords.length - 2
+    ].substr(0, index);
+  }
+  transformedWords[transformedWords.length - 1] =
+    and + transformedWords[transformedWords.length - 1];
+  return transformedWords.join(' ') + '.';
+}
 
 export function convertToWordInAmericanEnglish(number: number): string {
   if (!number) {
     return 'Please Enter an Amount';
   }
-  const first: string[] = [
+  const first = [
     '',
-    'one ',
-    'two ',
-    'three ',
-    'four ',
-    'five ',
-    'six ',
-    'seven ',
-    'eight ',
-    'nine ',
-    'ten ',
-    'eleven ',
-    'twelve ',
-    'thirteen ',
-    'fourteen ',
-    'fifteen ',
-    'sixteen ',
-    'seventeen ',
-    'eighteen ',
-    'nineteen ',
+    'One ',
+    'Two ',
+    'Three ',
+    'Four ',
+    'Five ',
+    'Six ',
+    'Seven ',
+    'Eight ',
+    'Nine ',
+    'Ten ',
+    'Eleven ',
+    'Twelve ',
+    'Thirteen ',
+    'Fourteen ',
+    'Fifteen ',
+    'Sixteen ',
+    'Seventeen ',
+    'Eighteen ',
+    'Nineteen ',
   ];
-  const tens: string[] = [
+
+  const tens = [
     '',
     '',
-    'twenty',
-    'thirty',
-    'forty',
-    'fifty',
-    'sixty',
-    'seventy',
-    'eighty',
-    'ninety',
+    'Twenty',
+    'Thirty',
+    'Forty',
+    'Fifty',
+    'Sixty',
+    'Seventy',
+    'Eighty',
+    'Ninety',
   ];
-  const mad: string[] = ['', 'thousand', 'million', 'billion', 'trillion'];
+
+  const mad = ['', 'Thousand', 'Million', 'Billion', 'Trillion'];
+
   let word = '';
 
   for (let i = 0; i < mad.length; i++) {

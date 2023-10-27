@@ -43,6 +43,7 @@ export type AppStackParamList = {
   HomeScreen: undefined;
   EmiCalculator: undefined;
   AmountToWordsScreen: undefined;
+  MoneyTotallerScreen: undefined;
   FdCalculator: {
     screenTitle: string;
     name: string;
@@ -111,6 +112,8 @@ export type HorizontalInfoProps = {
   value: string;
   showDivider: boolean;
   isHorizontal?: boolean;
+  textContainerStyle?: ViewStyle;
+  horizontalTitleCategory?: string;
 };
 
 export type PieChartProps = {

@@ -8,14 +8,19 @@ const HorizontalInfo = ({
   value,
   showDivider,
   isHorizontal = true,
+  textContainerStyle,
+  horizontalTitleCategory,
 }: HorizontalInfoProps) => {
   const theme = useTheme();
   if (isHorizontal) {
     return (
-      <Layout style={styles.container}>
-        <Layout style={styles.textContainer}>
-          <Text category="p1">{title}</Text>
-          <Text category="s1" style={styles.valueText}>
+      <Layout style={[styles.container]}>
+        <Layout style={[styles.textContainer, textContainerStyle]}>
+          <Text
+            category={horizontalTitleCategory ? horizontalTitleCategory : 'p1'}>
+            {title}
+          </Text>
+          <Text status="primary" category="s1" style={styles.valueText}>
             {value}
           </Text>
         </Layout>
@@ -29,6 +34,7 @@ const HorizontalInfo = ({
           {title}
         </Text>
         <Text
+          status="primary"
           category="s1"
           style={[styles.cardValue, {color: theme['color-primary-500']}]}>
           {value}
@@ -40,12 +46,15 @@ const HorizontalInfo = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 10,
+    // marginHorizontal: 10,
   },
   textContainer: {
+    padding: 10,
+    backgroundColor: 'white',
+    // borderRadius: 8,
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
+    // paddingVertical: 10,
     flexDirection: 'row',
   },
   valueText: {

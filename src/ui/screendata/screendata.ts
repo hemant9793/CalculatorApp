@@ -53,4 +53,5 @@ export const SCREEN_NAMES = {
   RdCalculator: 'RdCalculator',
   PpfdCalculator: 'PpfCalculator',
   AmountToWordsScreen: 'AmountToWordsScreen',
+  MoneyTotallerScreen: 'MoneyTotallerScreen',
 };

@@ -12,6 +12,7 @@ import CompareLoansScreen from '@src/ui/screens/compareloan';
 import LoanComparisonDetails from '@src/ui/screens/loancomparisondetail';
 import FdCalculator from '@src/ui/screens/fdcalculator';
 import AmountToWordsScreen from '@src/ui/screens/amounttowords';
+import MoneyTotallerScreen from '@src/ui/screens/moneyTotaller';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -42,6 +43,10 @@ export function AppStack() {
       <Stack.Screen
         name="AmountToWordsScreen"
         component={AmountToWordsScreen}
+      />
+      <Stack.Screen
+        name="MoneyTotallerScreen"
+        component={MoneyTotallerScreen}
       />
     </Stack.Navigator>
   );

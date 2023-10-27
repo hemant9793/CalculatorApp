@@ -55,12 +55,12 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
         {
           key: 'Amount to words',
           screen: 'AmountToWordsScreen',
-          icon: SCREEN_NAMES.FdCalculator,
+          icon: SCREEN_NAMES.AmountToWordsScreen,
         },
         {
-          key: 'RD Calculator',
-          screen: 'RdCalculator',
-          icon: SCREEN_NAMES.RdCalculator,
+          key: 'Money Totaller',
+          screen: 'MoneyTotallerScreen',
+          icon: SCREEN_NAMES.MoneyTotallerScreen,
         },
         {
           key: 'PPF Calculator',

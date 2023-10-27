@@ -78,7 +78,7 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
   return (
     <Layout style={styles.outerContainer}>
       {/* Card with Title and Value */}
-      <Card style={styles.card}>
+      <Card style={[styles.card, kittenStyle.whiteBackground]}>
         <Text style={kittenStyle.primaryText} category="h6">
           {selectedChip}
         </Text>
@@ -122,6 +122,9 @@ const kittenStyles = StyleSheet.create({
   primaryText: {
     color: 'color-primary-500',
   },
+  whiteBackground: {
+    backgroundColor: 'color-basic-500',
+  },
 });
 const styles = StyleSheet.create({
   outerContainer: {
@@ -144,6 +147,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8, // Shadow opacity
     shadowRadius: 14, // Shadow radius
     elevation: 4, // Elevation
+    marginBottom: 10,
   },
   button: {
     marginVertical: 16,

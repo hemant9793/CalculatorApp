@@ -1,8 +1,8 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
 import {Layout, useTheme} from '@ui-kitten/components';
+
 import Calculator from '@src/assets/svg/calculator1.svg';
-import CalculatorCoin from '@src/assets/svg/calculatorCoin.svg';
 import Safebox from '@src/assets/svg/safebox.svg';
 import Comparison from '@src/assets/svg/comparison.svg';
 import Rupee from '@src/assets/svg/rupee.svg';
@@ -28,16 +28,18 @@ const SvgInCircle: React.FC<SvgInCircleProps> = ({
   const getSvgIcon = () => {
     switch (name) {
       case SCREEN_NAMES.FdCalculator:
-        return <Safebox width={width - 6} height={height - 6} color={color} />;
+        return (
+          <Safebox width={width - 12} height={height - 12} color={color} />
+        );
       case SCREEN_NAMES.RdCalculator:
         return <Rd width={width - 6} height={height - 6} color={color} />;
       case SCREEN_NAMES.EmiCalculator:
         return (
-          <Calculator width={width - 6} height={height - 6} color={color} />
+          <Calculator width={width - 8} height={height - 8} color={color} />
         );
       case SCREEN_NAMES.CompareLoansScreen:
         return (
-          <Comparison width={width - 6} height={height - 3} color={color} />
+          <Comparison width={width - 10} height={height - 10} color={color} />
         );
       case SCREEN_NAMES.AmountToWordsScreen:
         return (
@@ -48,12 +50,11 @@ const SvgInCircle: React.FC<SvgInCircleProps> = ({
       case SCREEN_NAMES.PpfdCalculator:
         return (
           <FinancialPlanning
-            width={width - 6}
-            height={height - 6}
+            width={width - 16}
+            height={height - 16}
             color={color}
           />
         );
-
       default:
         break;
     }

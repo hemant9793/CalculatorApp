@@ -169,17 +169,20 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 20,
     fontWeight: 'bold',
-
-    // marginBottom: 8,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
     textAlign: 'center',
     padding: 5,
   },
   gridContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    borderRadius: 8,
   },
   gridItem: {
     flex: 1,
+    borderRadius: 8,
+
     alignItems: 'center',
     paddingVertical: 14,
     margin: 2,

@@ -15,12 +15,14 @@ import * as eva from '@eva-design/eva';
 import {EvaIconsPack} from '@ui-kitten/eva-icons';
 
 import {default as theme} from '../theme.json';
+import {StatusBar} from 'react-native';
 
 const App = () => {
   return (
     <ApplicationProvider {...eva} theme={{...eva.light, ...theme}}>
       <IconRegistry icons={EvaIconsPack} />
       <RootNavigator />
+      <StatusBar backgroundColor={theme['color-primary-400']} />
     </ApplicationProvider>
   );
 };

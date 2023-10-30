@@ -81,8 +81,12 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
 
   const onItemPress = (section: string, item: any) => {
     if (section === 'Emi Calculators') {
+      const screenName =
+        item.screen === 'CompareLoansScreen'
+          ? 'CompareLoansScreen'
+          : 'EmiCalculator';
       //@ts-ignore
-      navigation.navigate('EmiCalculator', SCREEN_EMI_UI_DATA[item?.screen]);
+      navigation.navigate(screenName, SCREEN_EMI_UI_DATA[item?.screen]);
     } else if (section === 'Banking Calculators') {
       //@ts-ignore
       navigation.navigate('FdCalculator', SCREEN_UI_DATA[item?.screen]);

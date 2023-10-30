@@ -1,6 +1,6 @@
 import {CompositeNavigationProp, RouteProp} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {ViewStyle} from 'react-native';
+import {TextStyle, ViewStyle} from 'react-native';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -31,6 +31,7 @@ export type CommonScreenProps = {
   loanamount?: number; //done to use routeparams as key to find title value
   interest?: number;
   period?: number;
+  isPeriodInMonths?: boolean;
   isBankingDetails?: boolean;
   maturityValue?: number;
   investmentAmount?: number;
@@ -115,6 +116,7 @@ export type HorizontalInfoProps = {
   showDivider: boolean;
   isHorizontal?: boolean;
   textContainerStyle?: ViewStyle;
+  titleTextStyle?: TextStyle;
   horizontalTitleCategory?: string;
 };
 

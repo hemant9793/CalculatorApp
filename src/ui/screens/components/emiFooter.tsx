@@ -56,7 +56,7 @@ const kittenStyles = StyleSheet.create({
     flex: 1,
     margin: 4,
     borderColor: 'color-primary-500',
-    backgroundColor: 'color-basic-100',
+    backgroundColor: 'color-basic-500',
     borderWidth: 2,
   },
   button: {

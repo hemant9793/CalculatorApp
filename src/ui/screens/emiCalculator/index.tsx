@@ -135,6 +135,7 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
         loanamount: parseFloat(principal) ?? 0,
         interest: parseFloat(interestRate),
         period: loanTenureMonths,
+        isPeriodInMonths: selectedMOrY === 'Months',
       });
     } else {
       setCalculatedVal('');
@@ -222,6 +223,9 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
               setInterestRateError('');
             }}
             caption={interestRateError}
+            accessoryRight={() => {
+              return <Text>%</Text>;
+            }}
           />
         )}
 

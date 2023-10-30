@@ -22,7 +22,7 @@ import {showToast} from '@src/ui/screens/components/toast';
 import OptionModal from '@src/ui/screens/components/modal';
 import {copyToClipboard} from '@src/ui/utils/helperUtils';
 import {STRINGS} from '@src/ui/screens/indepthsetailscreen/strings';
-import ViewShot, {captureRef, captureScreen} from 'react-native-view-shot';
+import {captureRef} from 'react-native-view-shot';
 
 const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
   route,
@@ -141,14 +141,6 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
   };
 
   const onOptionPress = (option: string) => {
-    // captureScreen({
-    //   format: 'jpg',
-    //   quality: 0.8,
-    // }).then(
-    //   uri => console.log('Image saved to', uri),
-    //   error => console.error('Oops, snapshot failed', error),
-    // );
-    // return;
     switch (option) {
       case 'Export as pdf':
         printOrGeneratePDF();
@@ -235,9 +227,6 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
 
         quality: 0.8,
       });
-
-      // Use the screenshotURI as needed (e.g., save to device, share, etc.)
-
       console.log('Screenshot captured:', screenshotURI);
     } catch (error) {
       console.error('Error capturing screenshot:', error);
@@ -246,7 +235,6 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
 
   return (
     <Layout ref={viewRef} style={styles.outerContainer}>
-      {/* <ViewShot onCapture={onCapture} captureMode="mount"> */}
       {isBankingDetails && (
         <Layout
           style={[
@@ -303,7 +291,6 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
         }}>
         {'rightTitle'}
       </Button>
-      {/* </ViewShot> */}
     </Layout>
   );
 };

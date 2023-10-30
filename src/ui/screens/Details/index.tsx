@@ -25,15 +25,21 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
     loanamount: loanAmount,
     period,
     selectedChip,
+    isPeriodInMonths,
   } = route.params;
   console.log(route.params);
 
   // Dummy data for HorizontalInfo components
   const screenData = [
     {title: 'Emi', value: emi ?? 0}, // Convert emi to a string
-    {title: 'Interest', value: interest}, // Convert interest to a string
+    {title: 'Interest', value: `${interest}%`}, // Convert interest to a string
     {title: 'Loan Amount', value: loanAmount}, // Convert loanAmount to a string
-    {title: 'Period', value: period},
+    {
+      title: 'Period',
+      value: isPeriodInMonths
+        ? `${period} Months`
+        : `${(period ?? 0) / 12} Years`,
+    },
     {title: 'Total Interest', value: (emi * period - loanAmount).toFixed(2)},
     {
       title: 'Total Payment',
@@ -83,7 +89,7 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
     <Layout style={styles.outerContainer}>
       {/* Card with Title and Value */}
       <Card style={[styles.card, kittenStyle.whiteBackground]}>
-        <Text style={kittenStyle.primaryText} category="h6">
+        <Text style={kittenStyle.primaryText} category="h5">
           {selectedChip}
         </Text>
         <Text style={kittenStyle.primaryText} category="s1">
@@ -98,6 +104,7 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
           title={data.title}
           value={data.value.toString()}
           showDivider={index < screenData.length - 1}
+          titleTextStyle={{fontWeight: '700'}}
         />
       ))}
 
@@ -117,7 +124,7 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
         onPress={() => {
           navigation.navigate('InDepthDetailScreen', route.params);
         }}>
-        See Details
+        Monthly Emi-Breakup And Export
       </Button>
     </Layout>
   );
@@ -143,7 +150,7 @@ const styles = StyleSheet.create({
     // backgroundColor: 'red',
   },
   card: {
-    padding: 12,
+    padding: 5,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 5,

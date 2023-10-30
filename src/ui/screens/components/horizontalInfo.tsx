@@ -10,6 +10,7 @@ const HorizontalInfo = ({
   isHorizontal = true,
   textContainerStyle,
   horizontalTitleCategory,
+  titleTextStyle,
 }: HorizontalInfoProps) => {
   const theme = useTheme();
   if (isHorizontal) {
@@ -17,7 +18,8 @@ const HorizontalInfo = ({
       <Layout style={[styles.container]}>
         <Layout style={[styles.textContainer, textContainerStyle]}>
           <Text
-            category={horizontalTitleCategory ? horizontalTitleCategory : 'p1'}>
+            category={horizontalTitleCategory ? horizontalTitleCategory : 'p1'}
+            style={titleTextStyle}>
             {title}
           </Text>
           <Text status="primary" category="s1" style={styles.valueText}>
@@ -30,7 +32,7 @@ const HorizontalInfo = ({
   } else {
     return (
       <Layout style={[styles.cardContainer, styles.card]}>
-        <Text category="p1" style={styles.cardTitle}>
+        <Text category="p1" style={[styles.cardTitle, titleTextStyle]}>
           {title}
         </Text>
         <Text

@@ -16,6 +16,7 @@ import {EvaIconsPack} from '@ui-kitten/eva-icons';
 
 import {default as theme} from '../theme.json';
 import {StatusBar} from 'react-native';
+import Toast from 'react-native-toast-message';
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
       <IconRegistry icons={EvaIconsPack} />
       <RootNavigator />
       <StatusBar backgroundColor={theme['color-primary-400']} />
+      <Toast />
     </ApplicationProvider>
   );
 };

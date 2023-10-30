@@ -1,18 +1,36 @@
-import React from 'react';
-import {StyleSheet, Dimensions} from 'react-native';
-import {Layout, useStyleSheet, useTheme} from '@ui-kitten/components';
+import React, {useCallback, useLayoutEffect, useRef, useState} from 'react';
+import {
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  Platform,
+  PermissionsAndroid,
+} from 'react-native';
+import {Button, Layout, useTheme} from '@ui-kitten/components';
 import {AppScreenProps} from '@src/types';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import RNPrint from 'react-native-print';
+
 import HorizontalInfo from '../components/horizontalInfo';
 import {calculatePercentage, roundNumber} from '../helpers/formulas';
 import AmortizationSchedule from '../components/monthlyDetails';
 import PieChart from '@src/ui/screens/components/piechart';
+import Export from '@src/assets/svg/export.svg';
+
+import {createHtmlContent} from '@src/ui/screens/indepthsetailscreen/helpers';
+import {showToast} from '@src/ui/screens/components/toast';
+import OptionModal from '@src/ui/screens/components/modal';
+import {copyToClipboard} from '@src/ui/utils/helperUtils';
+import {STRINGS} from '@src/ui/screens/indepthsetailscreen/strings';
+import ViewShot, {captureRef, captureScreen} from 'react-native-view-shot';
 
 const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
   route,
   navigation,
 }) => {
-  const kittenStyle = useStyleSheet(kittenStyles);
   const theme = useTheme();
+  const [visible, setVisible] = useState(false);
+  const ref = useRef();
 
   const {
     emi = 0,
@@ -51,10 +69,9 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
     principal: number,
     annualInterestRate: number,
     loanTerm: number,
-    emi: number,
   ) => {
     const monthlyInterestRate = annualInterestRate / 100 / 12;
-    const numberOfPayments = loanTerm * 12;
+    const numberOfPayments = loanTerm;
 
     const schedule = [];
 
@@ -66,7 +83,7 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
 
       schedule.push({
         month,
-        balance: roundNumber(balance),
+        balance: roundNumber(balance <= 0.5 ? 0 : balance),
         principal: roundNumber(principalPaid),
         interest: roundNumber(interestPaid),
       });
@@ -98,8 +115,138 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
     color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
   };
 
+  const printOrGeneratePDF = async (printPDF?: boolean, htmlData?: string) => {
+    const htmlContent1 = createHtmlContent(
+      emiData,
+      calculateAmortizationSchedule(loanAmount, interest, period),
+    );
+    const options = {
+      html: htmlContent1,
+      fileName: 'SampleReport', // Name your PDF file
+      directory: 'Download',
+    };
+    if (printPDF) {
+      const results = await RNHTMLtoPDF.convert(options);
+      await RNPrint.print({filePath: results.filePath ?? ''});
+    }
+
+    try {
+      const filePath = await RNHTMLtoPDF.convert(options);
+      console.log('PDF generated:', filePath);
+      showToast({text1: 'PDF generated successfully'});
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      showToast({text1: 'Failed to generate PDF ', type: 'error'});
+    }
+  };
+
+  const onOptionPress = (option: string) => {
+    // captureScreen({
+    //   format: 'jpg',
+    //   quality: 0.8,
+    // }).then(
+    //   uri => console.log('Image saved to', uri),
+    //   error => console.error('Oops, snapshot failed', error),
+    // );
+    // return;
+    switch (option) {
+      case 'Export as pdf':
+        printOrGeneratePDF();
+        break;
+      case 'Export as image':
+        printOrGeneratePDF();
+        break;
+      case STRINGS.PRINT:
+        printOrGeneratePDF(true);
+        break;
+      case 'Copy and share':
+        const formattedText = emiData
+          .map(({title, value}) => `${title} - ${value},`)
+          .join('\n');
+        copyToClipboard(formattedText);
+        break;
+    }
+  };
+
+  const checkStoragePermission = async () => {
+    if (Platform.OS === 'android' && Platform.Version >= 23) {
+      try {
+        const granted = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        );
+        console.log('checkStoragePermission -> granted', granted);
+        return granted;
+      } catch (error) {
+        console.error('Error checking storage permission:', error);
+        return false;
+      }
+    } else {
+      // For versions lower than Android 6.0 (Marshmallow), permission is granted by default
+      return true;
+    }
+  };
+
+  const askForStoragePermission = () => {
+    if (Platform.OS === 'android' && Platform.Version >= 23) {
+      PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+
+        {
+          title: 'Storage Permission',
+
+          message:
+            'This app needs access to your device storage to save screenshots.',
+
+          buttonNeutral: 'Ask Me Later',
+
+          buttonNegative: 'Cancel',
+
+          buttonPositive: 'OK',
+        },
+      ).then(result => {
+        if (result !== PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('Storage permission denied.');
+        }
+      });
+    }
+  };
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: 'Monthly Emi Details',
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => {
+            setVisible(true);
+          }}
+          style={{marginTop: 5}}>
+          <Export width={18} height={18} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
+  const viewRef = useRef();
+
+  const captureScreenshot = async () => {
+    try {
+      const screenshotURI = await captureRef(viewRef, {
+        format: 'jpg',
+
+        quality: 0.8,
+      });
+
+      // Use the screenshotURI as needed (e.g., save to device, share, etc.)
+
+      console.log('Screenshot captured:', screenshotURI);
+    } catch (error) {
+      console.error('Error capturing screenshot:', error);
+    }
+  };
+
   return (
-    <Layout style={styles.outerContainer}>
+    <Layout ref={viewRef} style={styles.outerContainer}>
+      {/* <ViewShot onCapture={onCapture} captureMode="mount"> */}
       {isBankingDetails && (
         <Layout
           style={[
@@ -115,37 +262,56 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
           />
         </Layout>
       )}
-      {screenData.map((data, index) => (
+      {screenData.map((screenDataItem, index) => (
         <HorizontalInfo
           key={index}
-          title={data.title}
-          value={data.value}
+          title={screenDataItem.title}
+          value={screenDataItem.value}
           isHorizontal={!isBankingDetails}
           showDivider={index < screenData.length - 1}
+          titleTextStyle={{fontWeight: '700'}}
         />
       ))}
       {!isBankingDetails && (
         <AmortizationSchedule
-          schedule={calculateAmortizationSchedule(
-            loanAmount,
-            interest,
-            period,
-            emi ?? 0,
-          )}
+          schedule={calculateAmortizationSchedule(loanAmount, interest, period)}
         />
       )}
+      <OptionModal
+        visible={visible}
+        modalTitle="Export"
+        strings={[
+          STRINGS.EXPORT_PDF,
+          STRINGS.EXPORT_IAMGE,
+          STRINGS.PRINT,
+          STRINGS.COPY_SHARE,
+        ]}
+        onClose={() => {
+          setVisible(false);
+        }}
+        onSelect={onOptionPress}
+      />
+      <Button
+        status="primary"
+        onPress={async () => {
+          const result = await checkStoragePermission();
+          console.log('result', result);
+          if (!result) {
+            askForStoragePermission();
+          }
+          captureScreenshot();
+        }}>
+        {'rightTitle'}
+      </Button>
+      {/* </ViewShot> */}
     </Layout>
   );
 };
-const kittenStyles = StyleSheet.create({
-  primaryText: {
-    color: 'color-primary-500',
-  },
-});
+
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
-    paddingHorizontal: 10,
+    padding: 10,
   },
   chartContainer: {
     paddingVertical: 10,

@@ -4,6 +4,7 @@ import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
 import android.os.Bundle;
+import android.view.WindowManager;
 
 public class MainActivity extends ReactActivity {
 
@@ -31,6 +32,7 @@ public class MainActivity extends ReactActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(null);
+     getPlainActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
     }
     public MainActivityDelegate(ReactActivity activity, String mainComponentName) {
       super(activity, mainComponentName);

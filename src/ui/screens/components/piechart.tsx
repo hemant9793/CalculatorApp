@@ -24,7 +24,7 @@ const PieChart = ({
         accessor={accessor}
         backgroundColor={'transparent'}
         paddingLeft={'0'}
-        center={[-30, 0]}
+        center={[0, 0]}
         absolute
         style={{marginHorizontal: 10}}
       />

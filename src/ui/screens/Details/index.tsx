@@ -5,8 +5,8 @@ import {
   Text,
   Button,
   Card,
-  Divider,
   useStyleSheet,
+  useTheme,
 } from '@ui-kitten/components';
 import {AppScreenProps} from '@src/types';
 import HorizontalInfo from '../components/horizontalInfo';
@@ -18,6 +18,7 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
   navigation,
 }) => {
   const kittenStyle = useStyleSheet(kittenStyles);
+  const theme = useTheme();
 
   const {
     emi,
@@ -62,7 +63,7 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
         'A',
       ),
       color: 'rgba(131, 167, 234, 1)',
-      legendFontColor: '#7F7F7F',
+      legendFontColor: theme['color-basic-800'],
       legendFontSize: 15,
     },
     {
@@ -73,7 +74,7 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
         'B',
       ),
       color: '#F00',
-      legendFontColor: '#7F7F7F',
+      legendFontColor: theme['color-basic-800'],
       legendFontSize: 15,
     },
   ];
@@ -112,7 +113,7 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
         <PieChart
           data={data}
           width={Dimensions.get('screen').width * 0.9}
-          height={100}
+          height={200}
           chartConfig={chartConfig}
           accessor="percentage"
         />

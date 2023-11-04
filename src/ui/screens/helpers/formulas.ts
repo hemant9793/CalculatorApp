@@ -2,12 +2,25 @@ export const calculateEMI = (
   principalAmount: number,
   monthlyInterestRate: number,
   loanTenureMonths: number,
+  emiType: string,
 ): number => {
-  const emiValue =
-    (principalAmount *
-      monthlyInterestRate *
-      Math.pow(1 + monthlyInterestRate, loanTenureMonths)) /
-    (Math.pow(1 + monthlyInterestRate, loanTenureMonths) - 1);
+  let emiValue = 0;
+  console.log('emiType', emiType);
+  if (emiType == 'Flat') {
+    //emin in arrears
+    const annualInterestRate = monthlyInterestRate * 12 * 100;
+    const totalInterest =
+      (principalAmount * annualInterestRate * (loanTenureMonths / 12)) / 100;
+    const totalAmount = principalAmount + totalInterest;
+    emiValue = totalAmount / loanTenureMonths;
+  } else {
+    //emin in arrears
+    emiValue =
+      (principalAmount *
+        monthlyInterestRate *
+        Math.pow(1 + monthlyInterestRate, loanTenureMonths)) /
+      (Math.pow(1 + monthlyInterestRate, loanTenureMonths) - 1);
+  }
   return emiValue;
 };
 

@@ -55,4 +55,6 @@ export const SCREEN_NAMES = {
   PpfdCalculator: 'PpfCalculator',
   AmountToWordsScreen: 'AmountToWordsScreen',
   MoneyTotallerScreen: 'MoneyTotallerScreen',
+  FlatEmiCalculatorScreen: 'FlatEmiCalculatorScreen',
+  AdvanceEmiCalculatorScreen: 'AdvanceEmiCalculatorScreen',
 };

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useLayoutEffect, useState} from 'react';
 import {StyleSheet} from 'react-native';
 import {
   Layout,
@@ -14,6 +14,10 @@ import {calculateEMI, calculatePrincipal} from '../helpers/formulas';
 import {AppScreenProps} from '@src/types';
 import EmiFooter from '@src/ui/screens/components/emiFooter';
 import {SCREEN_NAMES} from '@src/ui/screens/emiCalculator/emiscreendata';
+import {
+  formatIndianCurrency,
+  numberWithCommas,
+} from '@src/ui/utils/helperUtils';
 
 const HEADER_CHIPS = ['EMI', 'Loan Amount', 'Interest', 'Period'];
 const MONTH_OR_YEARS = ['Years', 'Months'];
@@ -37,7 +41,6 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
     input4Label,
     input5Label,
   } = route?.params;
-  console.log('route?.params', route?.params);
 
   const [principal, setPrincipal] = useState('');
   const [interestRate, setInterestRate] = useState('');
@@ -126,6 +129,7 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
         principalAmount,
         monthlyInterestRate,
         loanTenureMonths,
+        name == 'Flat Rate EMI Calculator' ? 'Flat' : 'Reducing',
       );
 
       setCalculatedVal(emiValue.toFixed(2));
@@ -149,22 +153,28 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
       selectedMOrY == 'Years' ? parseFloat(tenure) * 12 : parseFloat(tenure); // Loan tenure in months
     console.log('loanTenureMonths', loanTenureMonths);
     checkAndSetErrors();
-    if (selectedChip == 'Loan Amount') {
-      checkValAndCalcPrincipal(
-        interestRate,
-        selectedMOrY,
-        tenure,
-        enteredEmi,
-        setCalculatedVal,
-      );
-    } else if (selectedChip == 'EMI') {
-      checkValAndCalcEmi(
-        principalAmount,
-        monthlyInterestRate,
-        loanTenureMonths,
-        setCalculatedVal,
-      );
-    }
+    checkValAndCalcEmi(
+      principalAmount,
+      monthlyInterestRate,
+      loanTenureMonths,
+      setCalculatedVal,
+    );
+    // if (selectedChip == 'Loan Amount') {
+    //   checkValAndCalcPrincipal(
+    //     interestRate,
+    //     selectedMOrY,
+    //     tenure,
+    //     enteredEmi,
+    //     setCalculatedVal,
+    //   );
+    // } else if (selectedChip == 'EMI') {
+    // checkValAndCalcEmi(
+    //   principalAmount,
+    //   monthlyInterestRate,
+    //   loanTenureMonths,
+    //   setCalculatedVal,
+    // );
+    // }
   };
 
   const reset = () => {
@@ -187,15 +197,22 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
     setselectedMOrY(chip);
   };
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: name ?? '',
+    });
+  }, [navigation]);
+
   return (
     <Layout style={kittenStyle.container}>
-      {screenTitle === SCREEN_NAMES.EmiCalculator && (
+      {/* {screenTitle === SCREEN_NAMES.EmiCalculator && (
+        as we will always be calculating emi for now.
         <Chips
           chipData={HEADER_CHIPS}
           selectedChip={selectedChip}
           onChipPress={onChipPress}
         />
-      )}
+      )} */}
       <Layout style={[styles.inputContainer, styles.card]}>
         {selectedChip !== STRINGS.PRINCIPAL_AMOUNT_LABEL && (
           <Input
@@ -205,6 +222,10 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
             value={principal}
             style={styles.input}
             onChangeText={(text: string) => {
+              console.log('text', text);
+              // const indianType = numberWithCommas(parseInt(text));
+              // console.log('indianType', indianType);
+
               setPrincipal(text);
               setPrincipalError('');
             }}

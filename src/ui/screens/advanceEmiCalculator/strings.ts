@@ -1,0 +1,17 @@
+export const STRINGS = {
+  EMI_CALCULATOR_TITLE: 'EMI Calculator',
+  PRINCIPAL_AMOUNT_LABEL: 'Loan Amount',
+  PRINCIPAL_AMOUNT_PLACEHOLDER: 'Enter loan amount',
+  INTEREST_RATE_LABEL: 'Interest',
+  INTEREST_RATE_PLACEHOLDER: 'Enter interest rate',
+  LOAN_TENURE_LABEL: 'Period',
+  LOAN_TENURE_PLACEHOLDER: 'Enter Period',
+  CALCULATE_BUTTON: 'Calculate',
+  RESET: 'Reset',
+  EMI_LABEL: 'EMI',
+  EMI_PLACEHOLDER: 'Enter Emi',
+  PROCESSING_FEE: 'Processing fee',
+  PROCESSING_FEE_PLACEHOLDER: 'Enter Processing fee',
+  GST_ON_INTEREST: 'GST on Interest',
+  GST_ON_INTEREST_PLACEHOLDER: 'Enter Gst on Interest',
+};

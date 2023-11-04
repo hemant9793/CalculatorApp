@@ -17,12 +17,22 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
       title: 'Emi Calculators',
       data: [
         {
-          key: 'Emi Calculator',
+          key: 'EMI',
           screen: 'EmiCalculator',
           icon: SCREEN_NAMES.EmiCalculator,
         },
         {
-          key: 'Home Loan Calculator',
+          key: 'Flat Rate EMI',
+          screen: 'FlatRateEmiCalculator',
+          icon: SCREEN_NAMES.EmiCalculator,
+        },
+        {
+          key: 'Advance EMI',
+          screen: 'AdvanceEmiCalculator',
+          icon: SCREEN_NAMES.AdvanceEmiCalculatorScreen,
+        },
+        {
+          key: 'Home Loan',
           screen: 'HomeLoanCalculator',
           icon: SCREEN_NAMES.HomeLoanCalculator,
         },
@@ -81,10 +91,11 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
 
   const onItemPress = (section: string, item: any) => {
     if (section === 'Emi Calculators') {
-      const screenName =
-        item.screen === 'CompareLoansScreen'
-          ? 'CompareLoansScreen'
-          : 'EmiCalculator';
+      const screenName = ['EmiCalculator', 'FlatRateEmiCalculator'].includes(
+        item.screen,
+      )
+        ? 'EmiCalculator'
+        : item.screen;
       //@ts-ignore
       navigation.navigate(screenName, SCREEN_EMI_UI_DATA[item?.screen]);
     } else if (section === 'Banking Calculators') {

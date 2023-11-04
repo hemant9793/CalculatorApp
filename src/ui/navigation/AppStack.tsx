@@ -13,6 +13,8 @@ import LoanComparisonDetails from '@src/ui/screens/loancomparisondetail';
 import FdCalculator from '@src/ui/screens/fdcalculator';
 import AmountToWordsScreen from '@src/ui/screens/amounttowords';
 import MoneyTotallerScreen from '@src/ui/screens/moneyTotaller';
+import AdvanceEmiCalculator from '../screens/advanceEmiCalculator';
+import InterestRateChanges from '../screens/interestratechanges';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -30,11 +32,19 @@ export function AppStack() {
         options={({route}) => ({title: route.params.name})}
       />
       <Stack.Screen
+        name="AdvanceEmiCalculator"
+        component={AdvanceEmiCalculator}
+      />
+      <Stack.Screen
         name="FdCalculator"
         component={FdCalculator}
         options={({route}) => ({title: route.params.name})}
       />
-      <Stack.Screen name="DetailScreen" component={DetailScreen} />
+      <Stack.Screen
+        name="DetailScreen"
+        component={DetailScreen}
+        options={{title: 'EMI Details'}}
+      />
       <Stack.Screen
         name="InDepthDetailScreen"
         component={InDepthDetailScreen}
@@ -47,6 +57,10 @@ export function AppStack() {
       <Stack.Screen
         name="AmountToWordsScreen"
         component={AmountToWordsScreen}
+      />
+      <Stack.Screen
+        name="InterestRateChanges"
+        component={InterestRateChanges}
       />
       <Stack.Screen
         name="MoneyTotallerScreen"

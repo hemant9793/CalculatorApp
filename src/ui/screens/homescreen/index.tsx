@@ -5,11 +5,10 @@ import {AppScreenProps, HomeScreenSectionData} from '@src/types';
 import {SCREEN_NAMES, SCREEN_UI_DATA} from '@src/ui/screendata/screendata';
 import SvgInCircle from '@src/ui/screens/components/circularSvg';
 import {SCREEN_EMI_UI_DATA} from '@src/ui/screens/emiCalculator/emiscreendata';
+import {useFocusEffect} from '@react-navigation/native';
+import {GLOBAL_CONSTANTS} from '@src/constants';
 
-const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
-  route,
-  navigation,
-}) => {
+const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({navigation}) => {
   const kittenStyle = useStyleSheet(kittenStyles);
   const theme = useTheme();
   const sections: HomeScreenSectionData[] = [
@@ -35,6 +34,11 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
           key: 'Home Loan',
           screen: 'HomeLoanCalculator',
           icon: SCREEN_NAMES.HomeLoanCalculator,
+        },
+        {
+          key: 'Variable Interest Home Loan',
+          screen: 'VariableInterestHomeLoanCalculator',
+          icon: SCREEN_NAMES.VariableInterestHomeLoanCalculator,
         },
         {
           key: 'Compare Loans',
@@ -78,11 +82,6 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
           screen: 'MoneyTotallerScreen',
           icon: SCREEN_NAMES.MoneyTotallerScreen,
         },
-        {
-          key: 'PPF Calculator',
-          screen: 'PpfCalculator',
-          icon: SCREEN_NAMES.PpfdCalculator,
-        },
         // Add more items for List
       ],
     },
@@ -91,9 +90,11 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
 
   const onItemPress = (section: string, item: any) => {
     if (section === 'Emi Calculators') {
-      const screenName = ['EmiCalculator', 'FlatRateEmiCalculator'].includes(
-        item.screen,
-      )
+      const screenName = [
+        'EmiCalculator',
+        'FlatRateEmiCalculator',
+        'HomeLoanCalculator',
+      ].includes(item.screen)
         ? 'EmiCalculator'
         : item.screen;
       //@ts-ignore
@@ -160,6 +161,10 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({
     );
   };
 
+  useFocusEffect(() => {
+    GLOBAL_CONSTANTS.interestRateChanges = [];
+  });
+
   return (
     <ScrollView style={styles.container}>
       {sections.map((section: HomeScreenSectionData, index: number) =>
@@ -173,6 +178,8 @@ const kittenStyles = StyleSheet.create({
     backgroundColor: 'color-basic-500',
     marginBottom: 16,
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'color-primary-500',
     shadowColor: 'rgba(0, 0, 0, 0.1)',
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.8,

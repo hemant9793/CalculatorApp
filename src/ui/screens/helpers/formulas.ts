@@ -1,3 +1,5 @@
+import {GLOBAL_CONSTANTS} from '@src/constants';
+
 export const calculateEMI = (
   principalAmount: number,
   monthlyInterestRate: number,
@@ -5,7 +7,6 @@ export const calculateEMI = (
   emiType: string,
 ): number => {
   let emiValue = 0;
-  console.log('emiType', emiType);
   if (emiType == 'Flat') {
     //emin in arrears
     const annualInterestRate = monthlyInterestRate * 12 * 100;
@@ -24,6 +25,74 @@ export const calculateEMI = (
   return emiValue;
 };
 
+export const calculateAmortizationSchedule = (
+  principal: number,
+  monthlyInterestRate: number,
+  loanTerm: number,
+  emi: number,
+) => {
+  // const monthlyInterestRate = annualInterestRate / 100 / 12;
+  const numberOfPayments = loanTerm;
+
+  const schedule = [];
+
+  let balance = principal;
+  for (let month = 1; month <= numberOfPayments; month++) {
+    const interestPaid = balance * monthlyInterestRate;
+    const principalPaid = emi - interestPaid;
+    balance -= principalPaid;
+
+    schedule.push({
+      month,
+      balance: roundNumber(balance <= 0.5 ? 0 : balance),
+      principal: roundNumber(principalPaid),
+      interest: roundNumber(interestPaid),
+    });
+  }
+
+  return schedule;
+};
+
+export const calculateEmiWitInterestRateChanges = (
+  principal: number,
+  monthlyInterestRate: number,
+  loanTenureMonths: number,
+  emiType: string,
+) => {
+  const oldEmi = calculateEMI(
+    principal,
+    monthlyInterestRate,
+    loanTenureMonths,
+    emiType,
+  );
+  const scheduleWithOldEmi = calculateAmortizationSchedule(
+    principal,
+    monthlyInterestRate,
+    loanTenureMonths,
+    oldEmi,
+  );
+  const interestChange = GLOBAL_CONSTANTS.interestRateChanges;
+  console.log('scheduleWithOldEmi', scheduleWithOldEmi);
+  const changeMonthBalanceAmount =
+    scheduleWithOldEmi[interestChange[0].month - 1];
+  console.log(
+    'changeMonthBalanceAmount',
+    changeMonthBalanceAmount,
+    interestChange[0],
+    loanTenureMonths - interestChange[0].month,
+  );
+  const newEmi = calculateEMI(
+    changeMonthBalanceAmount.balance,
+    interestChange[0].rate / 12 / 100,
+    loanTenureMonths - interestChange[0].month,
+    emiType,
+  );
+  console.log('newEmi', newEmi);
+  const increasedMonth =
+    (newEmi * (loanTenureMonths - interestChange[0].month)) / oldEmi;
+  console.log('increasedMonth', increasedMonth);
+};
+
 export const calculatePrincipal = (
   enteredEmi: number,
   monthlyInterestRate: number,
@@ -36,7 +105,14 @@ export const calculatePrincipal = (
   return principal;
 };
 
-export function calculatePercentage(A: number, B: number, option: 'A' | 'B') {
+export function calculatePercentage(
+  A?: number,
+  B?: number,
+  option?: 'A' | 'B',
+) {
+  if (!A || !B) {
+    return;
+  }
   const total = A + B;
   let percentage;
   if (option === 'A') {
@@ -440,4 +516,148 @@ export function convertToWordInHindi(x: string): string {
     }
   }
   return r || 'शून्य';
+}
+
+function getAllMonthInterestRate(
+  interestChanges: any[],
+  originalInterestRate: number,
+  loanTenure: number,
+) {
+  let outputDS: {[key: number]: number} = {};
+  let currentRate = originalInterestRate;
+
+  for (let i = 1; i <= loanTenure; i++) {
+    const rateChange = interestChanges.find(change => change.month == i);
+
+    if (rateChange) {
+      const monthlyRate = rateChange.rate / 12 / 100;
+      currentRate = monthlyRate;
+    }
+
+    outputDS[i] = currentRate;
+  }
+
+  return outputDS;
+}
+
+function convertFloatToInt(num: number): number {
+  if (num < 0) {
+    // Handle negative numbers if needed
+    return Math.floor(num);
+  }
+
+  return Math.ceil(num);
+}
+
+const calculateAmortizationScheduleWithChangingInterestRate = (
+  principal: number,
+  monthlyInterestRate: number,
+  loanTerm: number,
+  emi: number,
+) => {
+  const schedule = [];
+  let balance = principal;
+  const allmonthInterestRate = getAllMonthInterestRate(
+    GLOBAL_CONSTANTS.interestRateChanges,
+    monthlyInterestRate,
+    loanTerm,
+  );
+
+  let month = 1;
+
+  while (balance > 0.5) {
+    const currentMonthIR = allmonthInterestRate[month]
+      ? allmonthInterestRate[month]
+      : allmonthInterestRate[loanTerm];
+    const interestPaid = balance * currentMonthIR;
+    const principalPaid = emi > balance ? balance : emi - interestPaid;
+    balance -= principalPaid;
+
+    schedule.push({
+      month,
+      balance: roundNumber(balance <= 0.5 ? 0 : balance),
+      principal: roundNumber(principalPaid),
+      interest: roundNumber(interestPaid),
+    });
+
+    month++;
+  }
+
+  return schedule;
+};
+
+export const calculateVariableInterestRateData = (
+  principal: number,
+  monthlyInterestRate: number,
+  loanTenureMonths: number,
+  emiType: string,
+) => {
+  const oldEmi = calculateEMI(
+    principal,
+    monthlyInterestRate,
+    loanTenureMonths,
+    emiType,
+  );
+  // console.log('oldEmi==>', oldEmi);
+
+  const scheduleWithOldEmi =
+    calculateAmortizationScheduleWithChangingInterestRate(
+      principal,
+      monthlyInterestRate,
+      loanTenureMonths,
+      oldEmi,
+    );
+  // console.log('scheduleWithOldEmi==>', scheduleWithOldEmi);
+  const totalNewInterest = scheduleWithOldEmi.reduce(
+    (acc, entry) => acc + entry.interest,
+    0,
+  );
+
+  // console.log('Total New Interest: ', totalNewInterest);
+
+  //old interest
+  const scheduleWithOldEmiOldAmort = calculateAmortizationSchedule(
+    principal,
+    monthlyInterestRate,
+    loanTenureMonths,
+    oldEmi,
+  );
+  // console.log("scheduleWithOldEmiOldAmort==>",scheduleWithOldEmiOldAmort)
+  const totalOldInterest = scheduleWithOldEmiOldAmort.reduce(
+    (acc, entry) => acc + entry.interest,
+    0,
+  );
+  // console.log('Total Old Interest: ', totalOldInterest);
+
+  // console.log('changes interest===>', totalOldInterest - totalNewInterest);
+  //new work
+  const balanceLastMonth =
+    scheduleWithOldEmi[scheduleWithOldEmi.length - 1].balance;
+  const changesTenure = Math.round((balanceLastMonth / oldEmi) * 100) / 100;
+  // console.log('changesTenure', changesTenure);
+  const increasedTenure = (loanTenureMonths +=
+    convertFloatToInt(changesTenure));
+  // console.log('inreasedTenure', increasedTenure);
+  const calculatedData = {
+    monthlyData: scheduleWithOldEmi,
+    newTenure: scheduleWithOldEmi.length
+      ? scheduleWithOldEmi.length
+      : increasedTenure,
+    emi: roundNumber(oldEmi),
+    totalOldInterest: roundNumber(totalOldInterest),
+    totalNewInterest: roundNumber(totalNewInterest),
+  };
+
+  return calculatedData;
+};
+
+export function removeCommasAndPeriods(input: string): string {
+  if (!input) {
+    return '';
+  }
+
+  // Use regular expression to remove commas and periods
+  const cleanedString = input.replace(/[,\.]/g, '');
+
+  return cleanedString;
 }

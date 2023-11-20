@@ -12,6 +12,10 @@ export const STRINGS = {
   EMI_PLACEHOLDER: 'Enter Emi',
   PROCESSING_FEE: 'Processing fee',
   PROCESSING_FEE_PLACEHOLDER: 'Enter Processing fee',
+  PROCESSING_FEE_ERROR: 'Please enter a valid Processing fee',
+  PRINCIPAL_ERROR: 'Please enter a valid principal amount',
+  INTEREST_RATE_ERROR: 'Please enter a valid interest rate',
+  LOAN_TENURE_ERROR: 'Please enter a valid loan tenure',
   GST_ON_INTEREST: 'GST on Interest',
   GST_ON_INTEREST_PLACEHOLDER: 'Enter Gst on Interest',
 };

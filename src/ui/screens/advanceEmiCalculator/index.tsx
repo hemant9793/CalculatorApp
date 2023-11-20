@@ -13,19 +13,34 @@ import {
 import {Chips} from '../components';
 
 // import {STRINGS} from './strings';
-import {calculateEMI, calculatePrincipal} from '../helpers/formulas';
-import {AppScreenProps} from '@src/types';
+import {
+  calculateAmortizationSchedule,
+  calculateEMI,
+  calculateEmiWitInterestRateChanges,
+  calculatePrincipal,
+  calculateVariableInterestRateData,
+  roundNumber,
+} from '../helpers/formulas';
+import {
+  AppScreenProps,
+  BannerAdSizeEnum,
+  GlobalInterestRateChanges,
+} from '@src/types';
 import EmiFooter from '@src/ui/screens/components/emiFooter';
 import {SCREEN_NAMES} from '@src/ui/screens/emiCalculator/emiscreendata';
 import {numberWithCommas} from '@src/ui/utils/helperUtils';
 import {STRINGS} from './strings';
 import {useFocusEffect} from '@react-navigation/native';
 import {GLOBAL_CONSTANTS} from '@src/constants';
+import {Advert} from '@src/ui/screens/components/ads';
+import {formatRateRange} from '@src/ui/screens/variableHomeLoanEmiCalculator/helpers';
+import {showToast} from '@src/ui/screens/components/toast';
+import StringUtils from '@src/ui/utils/stringUtils';
 
 const HEADER_CHIPS = ['EMI in Arrears', 'EMI in Advance'];
 const MONTH_OR_YEARS = ['Years', 'Months'];
 const INTEREST_RATE = ['Reducing', 'Flat'];
-const PROCESSING_CHIPS = ['%', 'Rs'];
+const PROCESSING_CHIPS = ['%', '₹'];
 const WIDTH = Dimensions.get('screen').width;
 
 const AdvanceEmiCalculator: React.FC<
@@ -37,8 +52,9 @@ const AdvanceEmiCalculator: React.FC<
   const [principal, setPrincipal] = useState('');
   const [interestRate, setInterestRate] = useState('');
   const [tenure, setTenure] = useState('');
-  const [enteredEmi, setEnteredEmi] = useState('');
-  const [calculatedVal, setCalculatedVal] = useState('');
+  const [processingFee, setProcessingFee] = useState('');
+  const [gstOnInterest, setgstOnInterest] = useState('');
+
   const [selectEmiType, setSelectEmiType] = useState('EMI in Arrears');
   const [selectedMOrY, setselectedMOrY] = useState('Years');
   const [selectReducingOrFlat, setSelectReducingOrFlat] = useState('Reducing');
@@ -48,25 +64,35 @@ const AdvanceEmiCalculator: React.FC<
   const [principalError, setPrincipalError] = useState('');
   const [interestRateError, setInterestRateError] = useState('');
   const [tenureError, setTenureError] = useState('');
+  const [processingFeeError, setProcessingFeeError] = useState('');
   const [emiError, setEmiError] = useState('');
 
-  const [interestRateChanges, setInterestRateChanges] = useState([]);
+  const [interestRateChanges, setInterestRateChanges] = useState<
+    GlobalInterestRateChanges[]
+  >([]);
 
   const checkAndSetErrors = () => {
-    // Convert input to numeric values
+    let hasErrors = false;
 
     if (isNaN(parseFloat(principal))) {
-      setPrincipalError('Please enter a valid principal amount');
+      hasErrors = true;
+      setPrincipalError(STRINGS.PRINCIPAL_ERROR);
     }
     if (isNaN(parseFloat(interestRate) / 100 / 12)) {
-      setInterestRateError('Please enter a valid interest rate');
+      hasErrors = true;
+
+      setInterestRateError(STRINGS.INTEREST_RATE_ERROR);
     }
     if (isNaN(parseFloat(tenure) * 12)) {
-      setTenureError('Please enter a valid loan tenure');
+      hasErrors = true;
+      setTenureError(STRINGS.LOAN_TENURE_ERROR);
     }
-    if (isNaN(parseFloat(enteredEmi))) {
-      setEmiError('Please enter a valid Emi');
+    console.log('checkAndSetErrors -> processingFee', processingFee);
+    if (!processingFee && processingFeeEnabled) {
+      hasErrors = true;
+      setProcessingFeeError(STRINGS.PROCESSING_FEE_ERROR);
     }
+    return hasErrors;
   };
 
   const clearError = () => {
@@ -79,34 +105,42 @@ const AdvanceEmiCalculator: React.FC<
     principalAmount: number,
     monthlyInterestRate: number,
     loanTenureMonths: number,
-    setCalculatedVal: React.Dispatch<React.SetStateAction<string>>,
   ) => {
     let emiValue;
-    if (
-      !isNaN(principalAmount) &&
-      !isNaN(monthlyInterestRate) &&
-      !isNaN(loanTenureMonths)
-    ) {
-      // Calculate EMI
-      emiValue = calculateEMI(
-        principalAmount,
+
+    // Calculate EMI
+    emiValue = calculateEMI(
+      principalAmount,
+      monthlyInterestRate,
+      loanTenureMonths,
+      // name == 'Flat Rate EMI' ? 'Flat' : 'Reducing',
+      selectReducingOrFlat,
+    );
+
+    navigation.navigate('AdvanceDetailScreen', {
+      emi: roundNumber(emiValue) ?? 0,
+      loanamount: parseFloat(principal) ?? 0,
+      interest: parseFloat(interestRate),
+      period: loanTenureMonths,
+      isPeriodInMonths: selectedMOrY === 'Months',
+      totalInterest: roundNumber(
+        roundNumber(emiValue) * loanTenureMonths - parseFloat(principal),
+      ),
+      amortizationSchedule: calculateAmortizationSchedule(
+        parseFloat(principal),
         monthlyInterestRate,
         loanTenureMonths,
-        // name == 'Flat Rate EMI' ? 'Flat' : 'Reducing',
-        selectReducingOrFlat,
-      );
+        emiValue,
+      ),
+    });
+  };
 
-      setCalculatedVal(emiValue.toFixed(2));
-      navigation.navigate('DetailScreen', {
-        selectedChip: selectEmiType,
-        emi: emiValue?.toFixed(2) ?? 0,
-        loanamount: parseFloat(principal) ?? 0,
-        interest: parseFloat(interestRate),
-        period: loanTenureMonths,
-        isPeriodInMonths: selectedMOrY === 'Months',
-      });
+  const getProcessingfee = (input: string, inputPrincipal: number) => {
+    if (selectedRsOrPercentage == '%') {
+      const percent = parseFloat(input);
+      return (inputPrincipal * percent) / 100;
     } else {
-      setCalculatedVal('');
+      return parseFloat(input);
     }
   };
 
@@ -116,24 +150,69 @@ const AdvanceEmiCalculator: React.FC<
     const loanTenureMonths =
       selectedMOrY == 'Years' ? parseFloat(tenure) * 12 : parseFloat(tenure); // Loan tenure in months
     console.log('loanTenureMonths', loanTenureMonths);
-    checkAndSetErrors();
-    checkValAndCalcEmi(
-      principalAmount,
-      monthlyInterestRate,
-      loanTenureMonths,
-      setCalculatedVal,
-    );
+    if (checkAndSetErrors()) {
+      return;
+    }
+    if (parseFloat(interestRate) >= 100) {
+      showToast({
+        text1: 'Please entere interest rate below 100%',
+        type: 'error',
+      });
+      return;
+    }
+    if (!GLOBAL_CONSTANTS.interestRateChanges.length) {
+      checkValAndCalcEmi(
+        principalAmount,
+        monthlyInterestRate,
+        loanTenureMonths,
+      );
+    } else if (GLOBAL_CONSTANTS.interestRateChanges.length) {
+      const calculatedData = calculateVariableInterestRateData(
+        principalAmount,
+        monthlyInterestRate,
+        loanTenureMonths,
+        selectReducingOrFlat,
+      );
+      navigation.navigate('AdvanceDetailScreen', {
+        emi: calculatedData?.emi ?? 0,
+        loanamount: parseFloat(principal) ?? 0,
+        interest: parseFloat(interestRate),
+        period: loanTenureMonths,
+        isPeriodInMonths: selectedMOrY === 'Months',
+        interestChange: roundNumber(
+          calculatedData.totalNewInterest - calculatedData.totalOldInterest,
+        ),
+        newTenure: calculatedData.newTenure,
+        processingfee: processingFee
+          ? getProcessingfee(processingFee, parseFloat(principal))
+          : 0,
+        oldTenure: loanTenureMonths,
+        amortizationSchedule: calculatedData?.monthlyData,
+        totalNewInterest: calculatedData?.totalNewInterest,
+        totalOldInterest: calculatedData?.totalOldInterest,
+        interestChangeString: formatRateRange(
+          GLOBAL_CONSTANTS.interestRateChanges,
+          parseFloat(interestRate),
+        ),
+      });
+    }
   };
 
   const reset = () => {
     setPrincipal('');
     setInterestRate('');
     setTenure('');
-    setEnteredEmi('');
-    setCalculatedVal('');
-    // setSelectedChip('EMI');
+    setProcessingFee('');
     clearError();
     setEmiError('');
+    setProcessingFeeError('');
+    clearInterestChanges();
+  };
+
+  const clearInterestChanges = () => {
+    if (GLOBAL_CONSTANTS.interestRateChanges.length) {
+      setInterestRateChanges([]);
+    }
   };
 
   const onChipPress = (chip: string) => {
@@ -156,15 +235,9 @@ const AdvanceEmiCalculator: React.FC<
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: 'Advance EMI' ?? '',
+      title: 'Advance EMI Calculator' ?? '',
     });
   }, [navigation]);
-
-  React.useEffect(() => {
-    return () => {
-      GLOBAL_CONSTANTS.interestRateChanges = [];
-    };
-  }, []);
 
   useFocusEffect(() => {
     if (GLOBAL_CONSTANTS.interestRateChanges.length) {
@@ -174,11 +247,11 @@ const AdvanceEmiCalculator: React.FC<
 
   return (
     <Layout style={kittenStyle.container}>
-      <Chips
+      {/* <Chips
         chipData={HEADER_CHIPS}
         selectedChip={selectEmiType}
         onChipPress={onEmiArrearAdvanceChipPress}
-      />
+      /> */}
       <Layout style={[styles.inputContainer, styles.card]}>
         <Input
           label={STRINGS.PRINCIPAL_AMOUNT_LABEL}
@@ -189,7 +262,7 @@ const AdvanceEmiCalculator: React.FC<
           onChangeText={(text: string) => {
             console.log('text', text);
 
-            setPrincipal(text);
+            setPrincipal(StringUtils.cleanString(text));
             setPrincipalError('');
           }}
           caption={principalError}
@@ -203,7 +276,11 @@ const AdvanceEmiCalculator: React.FC<
             value={interestRate}
             style={{...styles.input, flex: 1}}
             onChangeText={(text: string) => {
-              setInterestRate(text);
+              const hasOnlyZeroOrOneDot = StringUtils.hasOnlyZeroOrOneDot(text);
+              if (!hasOnlyZeroOrOneDot && text[text.length - 1] == '.') {
+                return;
+              }
+              setInterestRate(StringUtils.cleanStringExceptDot(text));
               setInterestRateError('');
             }}
             caption={interestRateError}
@@ -217,7 +294,7 @@ const AdvanceEmiCalculator: React.FC<
             containerStyle={{
               ...styles.mOrYChipContainer,
               ...kittenStyle.whiteBackGround,
-              ...(tenureError ? {marginBottom: 20} : {marginBottom: 5}),
+              ...(interestRateError ? {marginBottom: 20} : {marginBottom: 5}),
             }}
             onChipPress={onInterestRateChipPress}
           />
@@ -231,7 +308,7 @@ const AdvanceEmiCalculator: React.FC<
             value={tenure}
             style={{...styles.input, flex: 1}}
             onChangeText={(text: string) => {
-              setTenure(text);
+              setTenure(StringUtils.cleanString(text));
               setTenureError('');
             }}
             caption={tenureError}
@@ -251,16 +328,16 @@ const AdvanceEmiCalculator: React.FC<
           style={[styles.processingContainer, kittenStyle.whiteBackGround]}>
           <Input
             label={STRINGS.PROCESSING_FEE}
-            placeholder={STRINGS.PROCESSING_FEE}
+            placeholder={STRINGS.PROCESSING_FEE_PLACEHOLDER}
             keyboardType="numeric"
-            value={tenure}
+            value={processingFee}
             style={{...styles.input, flex: 1}}
             onChangeText={(text: string) => {
-              setTenure(text);
-              setTenureError('');
+              setProcessingFee(text);
+              setProcessingFeeError('');
             }}
             disabled={!processingFeeEnabled}
-            caption={tenureError}
+            caption={processingFeeError}
           />
           <Chips
             chipData={PROCESSING_CHIPS}
@@ -268,7 +345,7 @@ const AdvanceEmiCalculator: React.FC<
             containerStyle={{
               ...styles.mOrYChipContainer,
               ...kittenStyle.whiteBackGround,
-              ...(tenureError ? {marginBottom: 20} : {marginBottom: 5}),
+              ...(processingFeeError ? {marginBottom: 20} : {marginBottom: 5}),
             }}
             onChipPress={onProcessingFeeChipPress}
           />
@@ -276,24 +353,23 @@ const AdvanceEmiCalculator: React.FC<
             checked={processingFeeEnabled}
             style={{
               ...{marginHorizontal: 8},
-              ...(tenureError ? {marginBottom: 20} : {marginBottom: 12}),
+              ...(processingFeeError ? {marginBottom: 26} : {marginBottom: 12}),
             }}
             onChange={nextChecked => setProcessingFeeEnabled(nextChecked)}>
-            {``}
+            {''}
           </Radio>
         </Layout>
-        <Layout
+        {/* <Layout
           style={[styles.gstInterestContainer, kittenStyle.whiteBackGround]}>
           <Input
             label={STRINGS.GST_ON_INTEREST}
             placeholder={STRINGS.GST_ON_INTEREST_PLACEHOLDER}
             keyboardType="numeric"
-            value={principal}
+            value={gstOnInterest}
             style={{...styles.input, flex: 1}}
             onChangeText={(text: string) => {
               console.log('text', text);
-
-              setPrincipal(text);
+              setgstOnInterest(text);
               setPrincipalError('');
             }}
             caption={principalError}
@@ -309,24 +385,26 @@ const AdvanceEmiCalculator: React.FC<
               ...(tenureError ? {marginBottom: 20} : {marginBottom: 12}),
             }}
             onChange={nextChecked => setgstOnInterestEnabled(nextChecked)}>
-            {``}
+            {''}
           </Radio>
-        </Layout>
-        {interestRateChanges.length > 0 && (
-          <Layout style={{marginTop: 5, padding: 0, minWidth: WIDTH * 0.9}}>
-            <Layout style={styles.headerRow}>
-              <Text style={styles.headerText}>Revised Interest</Text>
-              <Text style={styles.headerText}>From Month</Text>
+        </Layout> */}
+        {interestRateChanges.length > 0 && interestRateChanges[0].month && (
+          <Layout style={styles.interestChangeContainer}>
+            <Layout style={kittenStyle.headerRow}>
+              <Text style={styles.headerText} appearance="alternative">
+                Revised Interest
+              </Text>
+              <Text style={styles.headerText} appearance="alternative">
+                From Month
+              </Text>
             </Layout>
             {interestRateChanges.map((change, index) => (
               <Layout
                 key={index}
                 style={[
                   styles.changeRow,
-                  index == interestRateChanges.length - 1 && {
-                    borderBottomLeftRadius: 5,
-                    borderBottomRightRadius: 5,
-                  },
+                  index == interestRateChanges.length - 1 &&
+                    styles.lastItemContainer,
                 ]}>
                 <Layout style={styles.rateContainer}>
                   <Text style={styles.rateText}>{`${change?.rate}%`}</Text>
@@ -356,6 +434,7 @@ const AdvanceEmiCalculator: React.FC<
       </Layout>
 
       <EmiFooter onResetPress={reset} onCalculatePress={calculateValue} />
+      <Advert BannerSize={BannerAdSizeEnum.LARGE_BANNER} />
     </Layout>
   );
 };
@@ -389,6 +468,14 @@ const kittenStyles = StyleSheet.create({
     borderColor: 'color-basic-400',
     // flex: 1,
   },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: 'color-primary-500',
+    padding: 8,
+    paddingHorizontal: 40,
+    borderRadius: 5,
+  },
 });
 
 const styles = StyleSheet.create({
@@ -416,6 +503,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
     borderRadius: 5,
+  },
+  interestChangeContainer: {
+    marginTop: 5,
+    borderRadius: 5,
+    padding: 0,
+    minWidth: WIDTH * 0.9,
+  },
+  lastItemContainer: {
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
   },
   enterInterestTextStyle: {
     flex: 1,
@@ -454,14 +551,6 @@ const styles = StyleSheet.create({
   investDate: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 5,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: 'lightgray',
-    padding: 8,
-    paddingHorizontal: 40,
     borderRadius: 5,
   },
   headerText: {

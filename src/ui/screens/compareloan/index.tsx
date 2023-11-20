@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useLayoutEffect, useState} from 'react';
 import {StyleSheet, Alert} from 'react-native';
 import {
   Layout,
@@ -7,12 +7,16 @@ import {
   useStyleSheet,
   useTheme,
 } from '@ui-kitten/components';
+import {BannerAd, BannerAdSize, TestIds} from 'react-native-google-mobile-ads';
+
 import {Chips} from '../components';
 
 import {STRINGS} from './strings';
 import {calculateEMI, calculatePrincipal} from '../helpers/formulas';
 import {AppScreenProps} from '@src/types';
 import EmiFooter from '../components/emiFooter';
+import {Advert} from '@src/ui/screens/components/ads';
+import {showToast} from '@src/ui/screens/components/toast';
 
 const MONTH_OR_YEARS = ['Years', 'Months'];
 
@@ -22,7 +26,6 @@ const CompareLoansScreen: React.FC<AppScreenProps<'CompareLoansScreen'>> = ({
 }) => {
   const kittenStyle = useStyleSheet(kittenStyles);
   const theme = useTheme();
-
   const [principal, setPrincipal] = useState('');
   const [interestRate, setInterestRate] = useState('');
   const [tenure, setTenure] = useState('');
@@ -40,14 +43,23 @@ const CompareLoansScreen: React.FC<AppScreenProps<'CompareLoansScreen'>> = ({
       !interestRate2 ||
       !tenure2
     ) {
-      Alert.alert('', 'Fill all values ');
+      showToast({text1: 'Please enter values to compare loans', type: 'error'});
       return true;
     }
     return false;
   };
 
   const calculateValue = () => {
-    if (checkErrorAndShowToast()) return;
+    if (checkErrorAndShowToast()) {
+      return;
+    }
+    if (parseFloat(interestRate) >= 100 || parseFloat(interestRate2) >= 100) {
+      showToast({
+        text1: 'Please entere interest rate below 100%',
+        type: 'error',
+      });
+      return;
+    }
     const principalAmount = parseFloat(principal);
     const monthlyInterestRate = parseFloat(interestRate) / 100 / 12; // Monthly interest rate
     const loanTenureMonths =
@@ -95,6 +107,12 @@ const CompareLoansScreen: React.FC<AppScreenProps<'CompareLoansScreen'>> = ({
     setselectedMOrY(chip);
   };
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: 'Compare Loans' ?? '',
+    });
+  }, [navigation]);
+
   return (
     <Layout style={kittenStyle.container}>
       <Layout style={[styles.inputContainer, styles.card]}>
@@ -118,7 +136,7 @@ const CompareLoansScreen: React.FC<AppScreenProps<'CompareLoansScreen'>> = ({
           onChangeText={setInterestRate}
         />
 
-        <Layout style={styles.periodContainer}>
+        <Layout style={[styles.periodContainer, kittenStyle.whiteBG]}>
           <Input
             label={STRINGS.LOAN_TENURE_LABEL}
             placeholder={STRINGS.LOAN_TENURE_PLACEHOLDER}
@@ -132,6 +150,7 @@ const CompareLoansScreen: React.FC<AppScreenProps<'CompareLoansScreen'>> = ({
             selectedChip={selectedMOrY}
             containerStyle={{
               ...styles.mOrYChipContainer,
+              backgroundColor: 'white',
               // ...(tenureError ? {marginBottom: 20} : {marginBottom: 5}),
             }}
             onChipPress={onMOrYChipPress}
@@ -160,7 +179,7 @@ const CompareLoansScreen: React.FC<AppScreenProps<'CompareLoansScreen'>> = ({
           onChangeText={setInterestRate2}
         />
 
-        <Layout style={styles.periodContainer}>
+        <Layout style={[styles.periodContainer, kittenStyle.whiteBG]}>
           <Input
             label={STRINGS.LOAN_TENURE_LABEL}
             placeholder={STRINGS.LOAN_TENURE_PLACEHOLDER}
@@ -173,6 +192,7 @@ const CompareLoansScreen: React.FC<AppScreenProps<'CompareLoansScreen'>> = ({
             chipData={MONTH_OR_YEARS}
             selectedChip={selectedMOrY}
             containerStyle={{
+              backgroundColor: 'white',
               ...styles.mOrYChipContainer,
             }}
             onChipPress={onMOrYChipPress}
@@ -185,6 +205,7 @@ const CompareLoansScreen: React.FC<AppScreenProps<'CompareLoansScreen'>> = ({
         onResetPress={reset}
         onCalculatePress={calculateValue}
       />
+      <Advert BannerSize={BannerAdSize.LARGE_BANNER} />
     </Layout>
   );
 };
@@ -196,6 +217,9 @@ const kittenStyles = StyleSheet.create({
   },
   btn: {
     backgroundColor: 'color-primary-500',
+  },
+  whiteBG: {
+    backgroundColor: 'color-basic-500',
   },
 });
 
@@ -217,7 +241,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   card: {
-    // backgroundColor: 'white',
+    backgroundColor: 'white',
     marginTop: 10,
     padding: 10,
     borderRadius: 8,

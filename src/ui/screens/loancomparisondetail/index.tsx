@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useLayoutEffect} from 'react';
 import {StyleSheet} from 'react-native';
 import {
   Layout,
@@ -30,28 +30,46 @@ const LoanComparisonDetails: React.FC<
   } = route.params;
   console.log(route.params);
 
+  const totalInterest1 = roundNumber(emi1 * loanTenureMonths - principalAmount);
+  const totalInterest2 = roundNumber(
+    emi2 * loanTenureMonths2 - principalAmount2,
+  );
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: 'Comparison Details' ?? '',
+    });
+  }, [navigation]);
+
   return (
     <Layout style={kittenStyle.outerContainer}>
       <LoanComparisonCard
         cardTitle="Monthly Emi"
-        title1="Emi 1"
-        value1={roundNumber(emi1)}
-        title2="Emi 2"
-        value2={roundNumber(emi2)}
+        title1="Loan 1 Emi"
+        value1={'₹' + roundNumber(emi1)}
+        title2="Loan 2 Emi"
+        value2={'₹' + roundNumber(emi2)}
       />
       <LoanComparisonCard
-        cardTitle="Interest Payable"
-        title1="Interest 1"
-        value1={roundNumber(monthlyInterestRate)}
-        title2="Interest 2"
-        value2={roundNumber(monthlyInterestRate2)}
+        cardTitle="Interest Rate"
+        title1="Loan 1 Interest"
+        value1={roundNumber(monthlyInterestRate) + '%'}
+        title2="Loan 2 Interest"
+        value2={roundNumber(monthlyInterestRate2) + '%'}
+      />
+      <LoanComparisonCard
+        cardTitle="Total Interest"
+        title1="Loan 1 Total Interest"
+        value1={'₹' + totalInterest1}
+        title2="Loan 2 Total Interest"
+        value2={'₹' + totalInterest2}
       />
       <LoanComparisonCard
         cardTitle="Total Amount"
-        title1="Total Amount 1"
-        value1={roundNumber(emi1 * loanTenureMonths - principalAmount)}
-        title2="Total Amount 2"
-        value2={roundNumber(emi2 * loanTenureMonths2 - principalAmount2)}
+        title1="Loan 1 Total Amount"
+        value1={'₹' + (totalInterest1 + principalAmount)}
+        title2="Loan 2 Total Amount"
+        value2={'₹' + (totalInterest2 + principalAmount2)}
       />
     </Layout>
   );

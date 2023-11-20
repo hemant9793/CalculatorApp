@@ -46,6 +46,7 @@ export const SCREEN_UI_DATA = {
 export const SCREEN_NAMES = {
   EmiCalculator: 'EmiCalculator',
   HomeLoanCalculator: 'HomeLoanCalculator',
+  VariableInterestHomeLoanCalculator: 'VariableInterestHomeLoanCalculator',
   DetailScreen: 'DetailScreen',
   InDepthDetailScreen: 'InDepthDetailScreen',
   CompareLoansScreen: 'CompareLoansScreen',

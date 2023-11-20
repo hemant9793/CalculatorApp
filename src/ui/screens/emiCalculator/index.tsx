@@ -11,13 +11,21 @@ import {Chips} from '../components';
 
 import {STRINGS} from './strings';
 import {calculateEMI, calculatePrincipal} from '../helpers/formulas';
-import {AppScreenProps} from '@src/types';
+import {AdType, AppScreenProps} from '@src/types';
 import EmiFooter from '@src/ui/screens/components/emiFooter';
+import {
+  InterstitialAd,
+  AdEventType,
+  TestIds,
+} from 'react-native-google-mobile-ads';
+
 import {SCREEN_NAMES} from '@src/ui/screens/emiCalculator/emiscreendata';
 import {
   formatIndianCurrency,
   numberWithCommas,
 } from '@src/ui/utils/helperUtils';
+import {Advert} from '@src/ui/screens/components/ads';
+import {showToast} from '@src/ui/screens/components/toast';
 
 const HEADER_CHIPS = ['EMI', 'Loan Amount', 'Interest', 'Period'];
 const MONTH_OR_YEARS = ['Years', 'Months'];
@@ -46,7 +54,6 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
   const [interestRate, setInterestRate] = useState('');
   const [tenure, setTenure] = useState('');
   const [enteredEmi, setEnteredEmi] = useState('');
-  const [calculatedVal, setCalculatedVal] = useState('');
   const [selectedChip, setSelectedChip] = useState('EMI');
   const [selectedMOrY, setselectedMOrY] = useState('Years');
   const [principalError, setPrincipalError] = useState('');
@@ -55,20 +62,22 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
   const [emiError, setEmiError] = useState('');
 
   const checkAndSetErrors = () => {
-    // Convert input to numeric values
+    let hasErrors = false;
 
     if (isNaN(parseFloat(principal))) {
+      hasErrors = true;
       setPrincipalError('Please enter a valid principal amount');
     }
     if (isNaN(parseFloat(interestRate) / 100 / 12)) {
+      hasErrors = true;
+
       setInterestRateError('Please enter a valid interest rate');
     }
     if (isNaN(parseFloat(tenure) * 12)) {
+      hasErrors = true;
       setTenureError('Please enter a valid loan tenure');
     }
-    if (isNaN(parseFloat(enteredEmi))) {
-      setEmiError('Please enter a valid Emi');
-    }
+    return hasErrors;
   };
 
   const clearError = () => {
@@ -82,7 +91,6 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
     selectedMOrY: string,
     tenure: string,
     enteredEmi: string,
-    setCalculatedVal: React.Dispatch<React.SetStateAction<string>>,
   ) => {
     const monthlyInterestRate = parseFloat(interestRate) / 100 / 12; // Monthly interest rate
     const loanTenureMonths =
@@ -99,7 +107,6 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
         loanTenureMonths,
       );
 
-      setCalculatedVal(calcPrincipal.toFixed(2));
       navigation.navigate('DetailScreen', {
         selectedChip,
         emi: parseFloat(enteredEmi) ?? 0,
@@ -108,7 +115,6 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
         period: loanTenureMonths,
       });
     } else {
-      setCalculatedVal('');
     }
   };
 
@@ -116,7 +122,6 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
     principalAmount: number,
     monthlyInterestRate: number,
     loanTenureMonths: number,
-    setCalculatedVal: React.Dispatch<React.SetStateAction<string>>,
   ) => {
     let emiValue;
     if (
@@ -132,7 +137,6 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
         name == 'Flat Rate EMI Calculator' ? 'Flat' : 'Reducing',
       );
 
-      setCalculatedVal(emiValue.toFixed(2));
       navigation.navigate('DetailScreen', {
         selectedChip,
         emi: emiValue?.toFixed(2) ?? 0,
@@ -142,39 +146,27 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
         isPeriodInMonths: selectedMOrY === 'Months',
       });
     } else {
-      setCalculatedVal('');
     }
   };
 
   const calculateValue = () => {
     const principalAmount = parseFloat(principal);
     const monthlyInterestRate = parseFloat(interestRate) / 100 / 12; // Monthly interest rate
+    console.log('calculateValue -> monthlyInterestRate', monthlyInterestRate);
     const loanTenureMonths =
       selectedMOrY == 'Years' ? parseFloat(tenure) * 12 : parseFloat(tenure); // Loan tenure in months
     console.log('loanTenureMonths', loanTenureMonths);
-    checkAndSetErrors();
-    checkValAndCalcEmi(
-      principalAmount,
-      monthlyInterestRate,
-      loanTenureMonths,
-      setCalculatedVal,
-    );
-    // if (selectedChip == 'Loan Amount') {
-    //   checkValAndCalcPrincipal(
-    //     interestRate,
-    //     selectedMOrY,
-    //     tenure,
-    //     enteredEmi,
-    //     setCalculatedVal,
-    //   );
-    // } else if (selectedChip == 'EMI') {
-    // checkValAndCalcEmi(
-    //   principalAmount,
-    //   monthlyInterestRate,
-    //   loanTenureMonths,
-    //   setCalculatedVal,
-    // );
-    // }
+    if (checkAndSetErrors()) {
+      return;
+    }
+    if (parseFloat(interestRate) >= 100) {
+      showToast({
+        text1: 'Please entere interest rate below 100%',
+        type: 'error',
+      });
+      return;
+    }
+    checkValAndCalcEmi(principalAmount, monthlyInterestRate, loanTenureMonths);
   };
 
   const reset = () => {
@@ -182,8 +174,6 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
     setInterestRate('');
     setTenure('');
     setEnteredEmi('');
-    setCalculatedVal('');
-    // setSelectedChip('EMI');
     clearError();
     setEmiError('');
   };
@@ -297,6 +287,7 @@ const EmiCalculator: React.FC<AppScreenProps<'EmiCalculator'>> = ({
       </Layout>
 
       <EmiFooter onResetPress={reset} onCalculatePress={calculateValue} />
+      <Advert adType={AdType.BANNER} />
     </Layout>
   );
 };

@@ -1,9 +1,12 @@
-import React, {useState} from 'react';
+import React, {useLayoutEffect, useState} from 'react';
 import {Input, Text, Layout} from '@ui-kitten/components';
 import {StyleSheet} from 'react-native';
 import HorizontalInfo from '@src/ui/screens/components/horizontalInfo';
+import {AppScreenProps} from '@src/types';
 
-const MoneyTotallerScreen: React.FC = () => {
+const MoneyTotallerScreen: React.FC<AppScreenProps<'MoneyTotallerScreen'>> = ({
+  navigation,
+}) => {
   const denominations = [1, 2, 5, 10, 20, 50, 100, 200, 500, 2000];
   const [amounts, setAmounts] = useState(Array(denominations.length).fill(''));
   const [totalAmount, setTotalAmount] = useState(0);
@@ -34,6 +37,11 @@ const MoneyTotallerScreen: React.FC = () => {
     }, 0);
     setTotalAmount(total);
   };
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: 'Money Totaller' ?? '',
+    });
+  }, [navigation]);
 
   return (
     <Layout style={styles.container}>

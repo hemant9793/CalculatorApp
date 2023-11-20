@@ -7,12 +7,22 @@ import {
   PermissionsAndroid,
 } from 'react-native';
 import {Button, Layout, useTheme} from '@ui-kitten/components';
-import {AppScreenProps} from '@src/types';
+import {AdType, AppScreenProps} from '@src/types';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import RNPrint from 'react-native-print';
+import {
+  AdEventType,
+  RewardedAd,
+  RewardedAdEventType,
+  TestIds,
+} from 'react-native-google-mobile-ads';
 
 import HorizontalInfo from '../components/horizontalInfo';
-import {calculatePercentage, roundNumber} from '../helpers/formulas';
+import {
+  calculateAmortizationSchedule,
+  calculatePercentage,
+  roundNumber,
+} from '../helpers/formulas';
 import AmortizationSchedule from '../components/monthlyDetails';
 import PieChart from '@src/ui/screens/components/piechart';
 import Export from '@src/assets/svg/export.svg';
@@ -23,6 +33,8 @@ import OptionModal from '@src/ui/screens/components/modal';
 import {copyToClipboard} from '@src/ui/utils/helperUtils';
 import {STRINGS} from '@src/ui/screens/indepthsetailscreen/strings';
 import {captureRef} from 'react-native-view-shot';
+import BottomSheet from '@src/ui/screens/components/bottomSheet';
+import {Advert} from '@src/ui/screens/components/ads';
 
 const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
   route,
@@ -37,6 +49,7 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
     interest = 0,
     loanamount: loanAmount = 0,
     period = 0,
+    isPeriodInMonths,
     investmentAmount = 0,
     investmentDate = '',
     isBankingDetails,
@@ -49,9 +62,14 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
   // Dummy data for HorizontalInfo components
   const emiData = [
     {title: 'Emi', value: emi.toString()},
-    {title: 'Interest', value: interest.toString()},
+    {title: 'Interest', value: `${interest.toString()} %`},
     {title: 'Loan Amount', value: loanAmount.toString()},
-    {title: 'Period', value: period.toString()},
+    {
+      title: 'Period',
+      value: isPeriodInMonths
+        ? `${period} Months`
+        : `${(period ?? 0) / 12} Years`,
+    },
     {title: 'Total Interest', value: (emi * period - loanAmount).toFixed(2)},
   ];
 
@@ -64,33 +82,6 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
   ];
 
   const screenData = isBankingDetails ? bankingData : emiData;
-
-  const calculateAmortizationSchedule = (
-    principal: number,
-    annualInterestRate: number,
-    loanTerm: number,
-  ) => {
-    const monthlyInterestRate = annualInterestRate / 100 / 12;
-    const numberOfPayments = loanTerm;
-
-    const schedule = [];
-
-    let balance = principal;
-    for (let month = 1; month <= numberOfPayments; month++) {
-      const interestPaid = balance * monthlyInterestRate;
-      const principalPaid = emi - interestPaid;
-      balance -= principalPaid;
-
-      schedule.push({
-        month,
-        balance: roundNumber(balance <= 0.5 ? 0 : balance),
-        principal: roundNumber(principalPaid),
-        interest: roundNumber(interestPaid),
-      });
-    }
-
-    return schedule;
-  };
 
   const data = [
     {
@@ -209,7 +200,7 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
       headerRight: () => (
         <TouchableOpacity
           onPress={() => {
-            setVisible(true);
+            setbottomSheetVisible(true);
           }}
           style={{marginTop: 5}}>
           <Export width={18} height={18} />
@@ -219,6 +210,54 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
   }, [navigation]);
 
   const viewRef = useRef();
+
+  const [bottomSheetVisible, setbottomSheetVisible] = useState(false);
+
+  const toggleBottomSheet = () => {
+    setbottomSheetVisible(!bottomSheetVisible);
+  };
+
+  const [loaded, setLoaded] = useState(false);
+  const adUnitId = __DEV__
+    ? TestIds.REWARDED
+    : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy';
+
+  const rewarded = RewardedAd.createForAdRequest(adUnitId, {
+    requestNonPersonalizedAdsOnly: true,
+    keywords: ['fashion', 'clothing'],
+  });
+
+  React.useEffect(() => {
+    const unsubscribeLoaded = rewarded.addAdEventListener(
+      RewardedAdEventType.LOADED,
+      () => {
+        console.log('addloaded :>> ');
+        setLoaded(true);
+      },
+    );
+    const unsubscribeAdClosed = rewarded.addAdEventListener(
+      AdEventType.CLOSED,
+      () => {
+        setVisible(true);
+      },
+    );
+    const unsubscribeEarned = rewarded.addAdEventListener(
+      RewardedAdEventType.EARNED_REWARD,
+      reward => {
+        console.log('User earned reward of ', reward);
+      },
+    );
+
+    // Start loading the rewarded ad straight away
+    rewarded.load();
+
+    // Unsubscribe from events on unmount
+    return () => {
+      unsubscribeLoaded();
+      unsubscribeEarned();
+      unsubscribeAdClosed();
+    };
+  }, []);
 
   const captureScreenshot = async () => {
     try {
@@ -231,6 +270,18 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
     } catch (error) {
       console.error('Error capturing screenshot:', error);
     }
+  };
+
+  const getAmortizationSchedule = () => {
+    const monthlySchedule = route.params?.extraData?.amortizationSchedule;
+    return monthlySchedule
+      ? monthlySchedule
+      : calculateAmortizationSchedule(
+          loanAmount,
+          interest / 100 / 12,
+          period,
+          emi,
+        );
   };
 
   return (
@@ -261,13 +312,11 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
         />
       ))}
       {!isBankingDetails && (
-        <AmortizationSchedule
-          schedule={calculateAmortizationSchedule(loanAmount, interest, period)}
-        />
+        <AmortizationSchedule schedule={getAmortizationSchedule()} />
       )}
       <OptionModal
         visible={visible}
-        modalTitle="Export"
+        // modalTitle="Export"
         strings={[
           STRINGS.EXPORT_PDF,
           STRINGS.EXPORT_IAMGE,
@@ -279,15 +328,31 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
         }}
         onSelect={onOptionPress}
       />
+      <BottomSheet
+        onClose={() => {
+          setbottomSheetVisible(false);
+        }}
+        watchAd={() => {
+          if (loaded) {
+            rewarded.show();
+            setbottomSheetVisible(false);
+          }
+        }}
+        purchaseAdFree={() => {
+          setbottomSheetVisible(false);
+        }}
+        visible={bottomSheetVisible}
+      />
       <Button
         status="primary"
         onPress={async () => {
-          const result = await checkStoragePermission();
-          console.log('result', result);
-          if (!result) {
-            askForStoragePermission();
-          }
-          captureScreenshot();
+          toggleBottomSheet();
+          // const result = await checkStoragePermission();
+          // console.log('result', result);
+          // if (!result) {
+          //   askForStoragePermission();
+          // }
+          // captureScreenshot();
         }}>
         {'rightTitle'}
       </Button>

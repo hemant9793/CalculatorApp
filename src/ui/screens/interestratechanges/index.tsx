@@ -1,4 +1,5 @@
-import React, {useLayoutEffect, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useState} from 'react';
+import {useFocusEffect} from '@react-navigation/native';
 import {
   Layout,
   Text,
@@ -16,7 +17,6 @@ import ExpandableRow from '../components/expandibleRow';
 import {GLOBAL_CONSTANTS} from '@src/constants';
 
 const InterestRateChanges: React.FC<AppScreenProps<'InterestRateChanges'>> = ({
-  route,
   navigation,
 }) => {
   const theme = useTheme();
@@ -41,6 +41,12 @@ const InterestRateChanges: React.FC<AppScreenProps<'InterestRateChanges'>> = ({
       title: STRINGS.INTEREST_RATE_CHANGES,
     });
   }, [navigation]);
+
+  useEffect(() => {
+    if (GLOBAL_CONSTANTS.interestRateChanges.length) {
+      setChanges(GLOBAL_CONSTANTS.interestRateChanges);
+    }
+  }, []);
 
   return (
     <Layout style={kittenStyle.outerContainer}>
@@ -70,7 +76,7 @@ const InterestRateChanges: React.FC<AppScreenProps<'InterestRateChanges'>> = ({
               }}
             />
             <Input
-              placeholder={`Month No.`}
+              placeholder={'Month No.'}
               value={change.month}
               onChangeText={text => {
                 const newChanges = [...changes];
@@ -80,11 +86,7 @@ const InterestRateChanges: React.FC<AppScreenProps<'InterestRateChanges'>> = ({
               style={styles.input}
             />
             <TouchableOpacity
-              style={{
-                flex: 0.2,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
+              style={styles.closeButton}
               onPress={() => {
                 const newChanges = [...changes];
                 newChanges.splice(index, 1);
@@ -185,6 +187,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     // justifyContent: 'space-between',
     marginTop: 16,
+  },
+  closeButton: {
+    flex: 0.2,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

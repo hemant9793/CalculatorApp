@@ -8,9 +8,9 @@ import {
   indianConversion,
 } from '@src/ui/screens/helpers/formulas';
 import {AppScreenProps} from '@src/types';
+import StringUtils from '@src/ui/utils/stringUtils';
 
 const AmountToWordsScreen: React.FC<AppScreenProps<'AmountToWordsScreen'>> = ({
-  route,
   navigation,
 }) => {
   const theme = useTheme();
@@ -54,8 +54,8 @@ const AmountToWordsScreen: React.FC<AppScreenProps<'AmountToWordsScreen'>> = ({
   };
 
   const handleAmountChange = (text: string) => {
-    setAmount(text);
-    convertToWords(text);
+    setAmount(StringUtils.cleanString(text));
+    convertToWords(StringUtils.cleanString(text));
   };
 
   return (
@@ -83,10 +83,12 @@ const AmountToWordsScreen: React.FC<AppScreenProps<'AmountToWordsScreen'>> = ({
             <Text category="h6">In Indian English :</Text>
             <Text category="p1">{convertedAmounts.indianEnglish}</Text>
           </Card>
-          <Card style={styles.card}>
-            <Text category="h6">In Hindi :</Text>
-            <Text category="p1">{convertedAmounts.hindi}</Text>
-          </Card>
+          {amount.length <= 12 && (
+            <Card style={styles.card}>
+              <Text category="h6">In Hindi :</Text>
+              <Text category="p1">{convertedAmounts.hindi}</Text>
+            </Card>
+          )}
           <Card style={styles.card}>
             <Text category="h6">In American English :</Text>
             <Text category="p1">{convertedAmounts.english}</Text>

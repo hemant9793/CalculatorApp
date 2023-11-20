@@ -12,6 +12,7 @@ import {
   Icon,
 } from '@ui-kitten/components';
 import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
+import {BannerAd, BannerAdSize, TestIds} from 'react-native-google-mobile-ads';
 
 import {Chips} from '../components';
 import {
@@ -25,6 +26,10 @@ import {
 import {AppScreenProps} from '@src/types';
 import EmiFooter from '../components/emiFooter';
 import {SCREEN_NAMES} from '@src/ui/screendata/screendata';
+import {Advert} from '@src/ui/screens/components/ads';
+import {STRINGS} from '@src/ui/screens/fdcalculator/strings';
+import {showToast} from '@src/ui/screens/components/toast';
+import StringUtils from '@src/ui/utils/stringUtils';
 
 const MONTH_OR_YEARS = ['Years', 'Months'];
 const COMPOUNDING_OPTIONS = [
@@ -122,17 +127,22 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
   }
 
   const checkAndSetErrors = () => {
-    // Convert input to numeric values
+    let hasErrors = false;
 
     if (isNaN(parseFloat(principal))) {
-      setPrincipalError('Please enter a valid principal amount');
+      hasErrors = true;
+      setPrincipalError(`${STRINGS.VALID_ERROR}${input1Label}`);
     }
     if (isNaN(parseFloat(interestRate) / 100 / 12)) {
-      setInterestRateError('Please enter a valid interest rate');
+      hasErrors = true;
+
+      setInterestRateError(STRINGS.INTEREST_RATE_ERROR);
     }
     if (isNaN(parseFloat(tenure) * 12)) {
-      setTenureError('Please enter a valid loan tenure');
+      hasErrors = true;
+      setTenureError(`${STRINGS.VALID_ERROR}${input3Label}`);
     }
+    return hasErrors;
   };
 
   const clearError = () => {
@@ -146,7 +156,17 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
     const loanTenureMonths =
       selectedMOrY == 'Years' ? parseFloat(tenure) * 12 : parseFloat(tenure); // Loan tenure in months
     console.log('loanTenureMonths', loanTenureMonths);
-    checkAndSetErrors();
+    if (checkAndSetErrors()) {
+      showToast({text1: STRINGS.FILL_ALL_DETAILS, type: 'error'});
+      return;
+    }
+    if (parseFloat(interestRate) >= 100) {
+      showToast({
+        text1: 'Please entere interest rate below 100%',
+        type: 'error',
+      });
+      return;
+    }
     console.log('calculateValue -> screenTitle', screenTitle);
     if (screenTitle === SCREEN_NAMES.RdCalculator) {
       const {maturedRd, totalInterest} = calculateRDMaturity(
@@ -241,7 +261,9 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
           keyboardType="numeric"
           value={principal.toString()}
           style={styles.input}
-          onChangeText={setPrincipal}
+          onChangeText={(text: string) => {
+            setPrincipal(StringUtils.cleanString(text));
+          }}
           caption={principalError}
         />
         <Input
@@ -250,7 +272,14 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
           keyboardType="numeric"
           value={interestRate.toString()}
           style={styles.input}
-          onChangeText={setInterestRate}
+          onChangeText={(text: string) => {
+            const hasOnlyZeroOrOneDot = StringUtils.hasOnlyZeroOrOneDot(text);
+            if (!hasOnlyZeroOrOneDot && text[text.length - 1] == '.') {
+              return;
+            }
+            setInterestRate(StringUtils.cleanStringExceptDot(text));
+            setInterestRateError('');
+          }}
           caption={interestRateError}
         />
         {input3Label && (
@@ -261,7 +290,9 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
               keyboardType="numeric"
               value={tenure.toString()}
               style={{...styles.input, flex: 1}}
-              onChangeText={setTenure}
+              onChangeText={(text: string) => {
+                setTenure(StringUtils.cleanString(text));
+              }}
               caption={tenureError}
             />
             <Chips
@@ -331,6 +362,7 @@ const FdCalculator: React.FC<AppScreenProps<'FdCalculator'>> = ({
         onResetPress={reset}
         onCalculatePress={calculateValue}
       />
+      <Advert />
     </Layout>
   );
 };

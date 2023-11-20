@@ -13,4 +13,9 @@ export const STRINGS = {
   FREQUENCY: 'Frequency',
   CALCULATE_BUTTON: 'Calculate',
   RESET: 'Reset',
+  PRINCIPAL_ERROR: 'Please enter a valid deposit amount',
+  INTEREST_RATE_ERROR: 'Please enter a valid interest rate',
+  LOAN_TENURE_ERROR: 'Please enter a valid loan tenure',
+  VALID_ERROR: 'Please enter a valid ',
+  FILL_ALL_DETAILS: 'Please fill all details',
 };

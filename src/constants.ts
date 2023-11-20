@@ -1,3 +1,5 @@
-export const GLOBAL_CONSTANTS = {
+import {GlobalConstants} from '@src/types';
+
+export const GLOBAL_CONSTANTS: GlobalConstants = {
   interestRateChanges: [],
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {Layout, Text} from '@ui-kitten/components';
+import {Layout, Text, useTheme} from '@ui-kitten/components';
 import {LoanComparisonCardProps} from '@src/types';
 
 const LoanComparisonCard: React.FC<LoanComparisonCardProps> = ({
@@ -10,6 +10,7 @@ const LoanComparisonCard: React.FC<LoanComparisonCardProps> = ({
   title2,
   value2,
 }) => {
+  const theme = useTheme();
   return (
     <Layout style={styles.card}>
       <Text category="h6" style={styles.header}>
@@ -18,11 +19,15 @@ const LoanComparisonCard: React.FC<LoanComparisonCardProps> = ({
       <Layout style={styles.row}>
         <Layout style={styles.rowItem}>
           <Text style={styles.rowTitle}>{title1}</Text>
-          <Text style={styles.rowValue}>{value1}</Text>
+          <Text style={[styles.rowValue, {color: theme['color-primary-500']}]}>
+            {value1}
+          </Text>
         </Layout>
         <Layout style={styles.rowItem}>
           <Text style={styles.rowTitle}>{title2}</Text>
-          <Text style={styles.rowValue}>{value2}</Text>
+          <Text style={[styles.rowValue, {color: theme['color-primary-500']}]}>
+            {value2}
+          </Text>
         </Layout>
       </Layout>
       <Text style={styles.comparisonText}>
@@ -56,10 +61,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 12,
-    // backgroundColor: 'red',
+    backgroundColor: 'white',
   },
   rowItem: {
     flex: 1,
+    backgroundColor: 'white',
   },
   rowTitle: {
     fontSize: 16,
@@ -71,6 +77,7 @@ const styles = StyleSheet.create({
   rowValue: {
     fontSize: 16,
     textAlign: 'center',
+    fontWeight: 'bold',
   },
   comparisonText: {
     fontSize: 16,

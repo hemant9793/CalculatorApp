@@ -8,6 +8,8 @@ import Comparison from '@src/assets/svg/comparison.svg';
 import Rupee from '@src/assets/svg/rupee.svg';
 import Rd from '@src/assets/svg/rd.svg';
 import Home from '@src/assets/svg/home.svg';
+import VariableCalculator from '@src/assets/svg/variableCalculator.svg';
+import AdvanceCalculator from '@src/assets/svg/advanceCalculator.svg';
 import Alphabetmoney from '@src/assets/svg/alphabetmoney.svg';
 import FinancialPlanning from '@src/assets/svg/financialPlanning.svg';
 import {SCREEN_NAMES} from '@src/ui/screendata/screendata';
@@ -50,6 +52,22 @@ const SvgInCircle: React.FC<SvgInCircleProps> = ({
         return <Rupee width={width - 10} height={height - 10} color={color} />;
       case SCREEN_NAMES.HomeLoanCalculator:
         return <Home width={width - 10} height={height - 10} color={color} />;
+      case SCREEN_NAMES.VariableInterestHomeLoanCalculator:
+        return (
+          <VariableCalculator
+            width={width - 10}
+            height={height - 10}
+            color={color}
+          />
+        );
+      case SCREEN_NAMES.AdvanceEmiCalculatorScreen:
+        return (
+          <AdvanceCalculator
+            width={width - 10}
+            height={height - 10}
+            color={color}
+          />
+        );
       case SCREEN_NAMES.PpfdCalculator:
         return (
           <FinancialPlanning

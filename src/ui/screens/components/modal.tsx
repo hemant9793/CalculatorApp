@@ -1,13 +1,18 @@
 import React from 'react';
 import {Modal, TouchableOpacity, FlatList, StyleSheet} from 'react-native';
-import {Layout, Text, useStyleSheet, Button} from '@ui-kitten/components';
+import {
+  Layout,
+  Text,
+  useStyleSheet,
+  useTheme,
+  Icon,
+} from '@ui-kitten/components';
 
 interface StringModalProps {
   visible: boolean;
   strings: string[];
   onClose: () => void;
   onSelect: (selectedString: string) => void;
-  modalTitle: string;
 }
 
 const OptionModal: React.FC<StringModalProps> = ({
@@ -15,9 +20,9 @@ const OptionModal: React.FC<StringModalProps> = ({
   strings,
   onClose,
   onSelect,
-  modalTitle,
 }) => {
   const kittenStyle = useStyleSheet(kittenStyles);
+  const theme = useTheme();
 
   return (
     <Modal
@@ -27,15 +32,17 @@ const OptionModal: React.FC<StringModalProps> = ({
       visible={visible}
       onRequestClose={onClose}>
       <Layout style={styles.centeredView}>
-        <Layout style={styles.modalView}>
-          <Layout style={styles.modalHeaderContainer}>
-            <Text
-              category="h6"
-              appearance="alternative"
-              style={[styles.modalHeader, kittenStyle.primaryBackground]}>
-              {modalTitle}
+        <Layout style={[styles.modalView, kittenStyle.accentBackground]}>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Text category="p1" style={kittenStyle.closeText}>
+              Close
             </Text>
-          </Layout>
+            <Icon
+              name="close"
+              style={styles.closeIcon}
+              fill={theme['color-primary-500']}
+            />
+          </TouchableOpacity>
           <FlatList
             data={strings}
             keyExtractor={(item, index) => index.toString()}
@@ -43,22 +50,24 @@ const OptionModal: React.FC<StringModalProps> = ({
               <TouchableOpacity
                 style={[
                   styles.item,
-                  index != strings.length - 1 ? {borderBottomWidth: 1} : {},
+                  index != strings.length - 1 ? {borderBottomWidth: 0.4} : {},
                 ]}
                 onPress={() => {
                   onSelect(item);
                   onClose();
                 }}>
-                <Text style={{textAlign: 'center'}}>{item}</Text>
+                <Text
+                  category="h6"
+                  style={{
+                    textAlign: 'center',
+                    fontWeight: '600',
+                    color: theme['color-primary-500'],
+                  }}>
+                  {item}
+                </Text>
               </TouchableOpacity>
             )}
           />
-          <Button
-            status="primary"
-            onPress={onClose}
-            style={[styles.closeButton, kittenStyle.accentBackground]}>
-            {'Close'}
-          </Button>
         </Layout>
       </Layout>
     </Modal>
@@ -70,22 +79,24 @@ const kittenStyles = StyleSheet.create({
     backgroundColor: 'color-primary-500',
   },
   accentBackground: {
-    backgroundColor: 'color-primary-400',
+    backgroundColor: 'color-basic-500',
+  },
+  closeText: {
+    marginBottom: 2,
+    fontSize: 16,
+    color: 'color-primary-500',
   },
 });
 
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Transparent black background
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Transparent black background
   },
   modalView: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    // paddingHorizontal: 10,
-    width: '70%',
+    borderTopRightRadius: 14,
+    borderTopLeftRadius: 14,
     maxHeight: '80%',
     overflow: 'hidden',
   },
@@ -104,13 +115,17 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   closeButton: {
-    // backgroundColor: 'red',
-    // flex: 0.8,
-    marginHorizontal: 60,
-    borderRadius: 5,
-    marginBottom: 8,
-    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     alignItems: 'center',
+    backgroundColor: 'white',
+    padding: 8,
+    borderBottomWidth: 0.5,
+  },
+
+  closeIcon: {
+    height: 22,
+    width: 22,
   },
 });
 

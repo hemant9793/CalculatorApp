@@ -1,6 +1,8 @@
 import {CompositeNavigationProp, RouteProp} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {SetStateAction} from 'react';
 import {TextStyle, ViewStyle} from 'react-native';
+import {RewardedAd} from 'react-native-google-mobile-ads';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -38,6 +40,32 @@ export type CommonScreenProps = {
   totalInterest?: number;
   investmentDate?: string;
   maturityDate?: string;
+  extraData?: advanceEmiData;
+};
+
+export type advanceEmiData = {
+  interestChange?: number;
+  newTenure?: number;
+  oldTenure?: number;
+  amortizationSchedule?: any[];
+};
+
+export type AdvanceCommonScreenProps = {
+  emi?: number;
+  loanamount?: number;
+  interest?: number;
+  period?: number;
+  totalInterest?: number;
+  interestChange?: number;
+  interestChangeString?: string;
+  totalNewInterest?: number;
+  processingfee?: number;
+  newTenure?: number;
+  oldTenure?: number;
+  amortizationSchedule?: any[];
+  isPeriodInMonths?: boolean;
+  maturityValue?: number;
+  totalOldInterest?: number;
 };
 
 export type VariableScreenParams = {
@@ -59,12 +87,15 @@ export type AppStackParamList = {
   HomeScreen: undefined;
   EmiCalculator: VariableScreenParams;
   AdvanceEmiCalculator: undefined;
+  VariableInterestHomeLoanCalculator: undefined;
   AmountToWordsScreen: undefined;
   InterestRateChanges: undefined;
   MoneyTotallerScreen: undefined;
   FdCalculator: VariableScreenParams;
   DetailScreen: CommonScreenProps;
   InDepthDetailScreen: CommonScreenProps;
+  AdvanceDetailScreen: AdvanceCommonScreenProps;
+  AdvanceInDepthDetailScreen: AdvanceCommonScreenProps;
   CompareLoansScreen: undefined;
   LoanComparisonDetails: {
     principalAmount: number;
@@ -133,7 +164,36 @@ export type PieChartProps = {
 export type LoanComparisonCardProps = {
   cardTitle: string;
   title1: string;
-  value1: number;
+  value1: string;
   title2: string;
-  value2: number;
+  value2: string;
 };
+export type GlobalConstants = {
+  interestRateChanges: GlobalInterestRateChanges[];
+};
+
+export type GlobalInterestRateChanges = {month: string; rate: string};
+
+export type Ads = {
+  adType?: AdType;
+  containerStyle?: ViewStyle;
+  BannerSize?: BannerAdSizeEnum | string;
+};
+
+export enum AdType {
+  BANNER = 'BANNER',
+  INTERSTITIAL = 'INTERSTITIAL',
+  REWARDED = 'REWARDED',
+}
+
+export enum BannerAdSizeEnum {
+  BANNER = 'BANNER',
+  FULL_BANNER = 'FULL_BANNER',
+  LARGE_BANNER = 'LARGE_BANNER',
+  LEADERBOARD = 'LEADERBOARD',
+  MEDIUM_RECTANGLE = 'MEDIUM_RECTANGLE',
+  ADAPTIVE_BANNER = 'ADAPTIVE_BANNER', // Deprecated, use `ANCHORED_ADAPTIVE_BANNER` instead.
+  ANCHORED_ADAPTIVE_BANNER = 'ANCHORED_ADAPTIVE_BANNER',
+  INLINE_ADAPTIVE_BANNER = 'INLINE_ADAPTIVE_BANNER',
+  WIDE_SKYSCRAPER = 'WIDE_SKYSCRAPER',
+}

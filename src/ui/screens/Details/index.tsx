@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Dimensions} from 'react-native';
+import {StyleSheet, Dimensions, ScrollView} from 'react-native';
 import {
   Layout,
   Text,
@@ -12,6 +12,7 @@ import {AppScreenProps} from '@src/types';
 import HorizontalInfo from '../components/horizontalInfo';
 import PieChart from '../components/piechart';
 import {calculatePercentage} from '../helpers/formulas';
+import {InterstitialAds} from '@src/ui/screens/components/interstitialAds';
 
 const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
   route,
@@ -21,11 +22,11 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
   const theme = useTheme();
 
   const {
-    emi,
-    interest,
-    loanamount: loanAmount,
-    period,
-    selectedChip,
+    emi = 0,
+    interest = 0,
+    loanamount: loanAmount = 0,
+    period = 0,
+    selectedChip = '',
     isPeriodInMonths,
   } = route.params;
   console.log(route.params);
@@ -62,7 +63,7 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
         loanAmount,
         'A',
       ),
-      color: 'rgba(131, 167, 234, 1)',
+      color: theme['color-primary-500'],
       legendFontColor: theme['color-basic-800'],
       legendFontSize: 15,
     },
@@ -87,14 +88,15 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
   };
 
   return (
-    <Layout style={styles.outerContainer}>
+    <ScrollView style={styles.outerContainer}>
       {/* Card with Title and Value */}
-      <Card style={[styles.card, kittenStyle.whiteBackground]}>
+      <InterstitialAds />
+      <Card style={[styles.card, kittenStyle.primaryBackground]}>
         <Text style={kittenStyle.primaryText} category="h5">
-          {selectedChip}
+          {selectedChip ?? 'Emi'}
         </Text>
-        <Text style={kittenStyle.primaryText} category="s1">
-          {getSelectedChipValue(selectedChip)}
+        <Text style={kittenStyle.primaryText} category="h6">
+          {getSelectedChipValue(selectedChip) ?? emi}
         </Text>
       </Card>
 
@@ -127,16 +129,20 @@ const DetailScreen: React.FC<AppScreenProps<'DetailScreen'>> = ({
         }}>
         Monthly Emi-Breakup And Export
       </Button>
-    </Layout>
+      {/* <InterstitialAds ref/> */}
+    </ScrollView>
   );
 };
 const kittenStyles = StyleSheet.create({
   primaryText: {
-    color: 'color-primary-500',
+    color: 'color-basic-500',
     textAlign: 'center',
   },
   whiteBackground: {
     backgroundColor: 'color-basic-500',
+  },
+  primaryBackground: {
+    backgroundColor: 'color-primary-500',
   },
 });
 const styles = StyleSheet.create({
@@ -150,6 +156,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     // backgroundColor: 'red',
   },
+  extraData: {},
   card: {
     padding: 5,
     alignItems: 'center',
@@ -165,6 +172,28 @@ const styles = StyleSheet.create({
   },
   button: {
     marginVertical: 16,
+  },
+  cardContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 16,
+    marginVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  textLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  textValue: {
+    textAlign: 'center',
+    fontSize: 14,
+    marginBottom: 16,
   },
 });
 

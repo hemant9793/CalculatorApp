@@ -11,15 +11,52 @@ type ScheduleItem = {
 
 type AmortizationScheduleProps = {
   schedule: ScheduleItem[];
+  oldTenureInMonths?: number;
 };
 
 const AmortizationSchedule: React.FC<AmortizationScheduleProps> = ({
   schedule,
+  oldTenureInMonths,
 }) => {
+  console.log('schedule', schedule);
   const kittenStyle = useStyleSheet(kittenStyles);
   const theme = useTheme();
 
   const titleList = ['Month', 'Principal', 'Interest', 'Balance'];
+
+  const renderItemCell = (text, isLastCell) => (
+    <Text
+      style={[
+        styles.cell,
+        isLastCell && {borderBottomWidth: 1}, // Set the right border for the last cell
+      ]}>
+      {text}
+    </Text>
+  );
+
+  const renderScheduleItem = (item, index) => (
+    <Layout
+      key={item.month}
+      style={[
+        kittenStyle.row,
+        {
+          backgroundColor:
+            index % 2 === 0
+              ? theme['color-basic-200']
+              : theme['color-basic-1300'],
+        },
+        kittenStyle.border, // Specify border styles for the cells
+        index + 1 > oldTenureInMonths
+          ? {backgroundColor: theme['color-danger-500']}
+          : {},
+        ,
+      ]}>
+      {renderItemCell(item.month, false)}
+      {renderItemCell(item.principal.toFixed(2), false)}
+      {renderItemCell(item.interest.toFixed(2), false)}
+      {renderItemCell(item.balance.toFixed(2), index === schedule.length - 1)}
+    </Layout>
+  );
 
   return (
     <Layout style={kittenStyle.container}>
@@ -30,32 +67,14 @@ const AmortizationSchedule: React.FC<AmortizationScheduleProps> = ({
           </Text>
         ))}
       </Layout>
-      <FlatList
+      {schedule.map((value: ScheduleItem, index: number) =>
+        renderScheduleItem(value, index),
+      )}
+      {/* <FlatList
         data={schedule}
         keyExtractor={item => item.month.toString()}
-        renderItem={({item, index}) => (
-          <Layout
-            key={item.month}
-            style={[
-              kittenStyle.row,
-              {
-                backgroundColor:
-                  index % 2 === 0
-                    ? theme['color-basic-200']
-                    : theme['color-basic-1300'],
-              },
-              // Specify border styles for the cells
-              kittenStyle.border,
-              // Check if it's the last item in the row to set the right border
-              index === schedule.length - 1 && {borderBottomWidth: 1},
-            ]}>
-            <Text style={styles.cell}>{item.month}</Text>
-            <Text style={styles.cell}>{item.principal.toFixed(2)}</Text>
-            <Text style={styles.cell}>{item.interest.toFixed(2)}</Text>
-            <Text style={styles.cell}>{item.balance.toFixed(2)}</Text>
-          </Layout>
-        )}
-      />
+        renderItem={renderScheduleItem}
+      /> */}
     </Layout>
   );
 };

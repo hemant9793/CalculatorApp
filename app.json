@@ -1,4 +1,8 @@
 {
   "name": "FeatureApp",
-  "displayName": "FeatureApp"
+  "displayName": "Emi Calculator",
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-9193025578299349~1844542087",
+    "ios_app_id": "ca-app-pub-xxxxxxxx~xxxxxxxx"
+  }
 }

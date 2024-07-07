@@ -1,6 +1,6 @@
 {
-  "name": "featureapp",
-  "version": "0.0.1",
+  "name": "EmiCalculator",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -8,8 +8,8 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "build-apk": "cd android && ./gradlew clean && ./gradlew assembleRelease && open app/build/outputs/apk/release/",
-    "build-aab": "cd android && ./gradlew clean && ./gradlew bundleRelease && open app/build/outputs/bundle/release/"
+    "build-apk": "cd android && ./gradlew clean && ./gradlew assembleRelease && explorer app/build/outputs/apk/release/",
+    "build-aab": "cd android && ./gradlew clean && ./gradlew bundleRelease && explorer app/build/outputs/bundle/release/"
   },
   "dependencies": {
     "@eva-design/eva": "^2.2.0",
@@ -22,6 +22,7 @@
     "react": "18.1.0",
     "react-native": "0.70.6",
     "react-native-chart-kit": "^6.12.0",
+    "react-native-device-info": "^11.1.0",
     "react-native-google-mobile-ads": "^12.3.0",
     "react-native-html-to-pdf": "^0.12.0",
     "react-native-print": "^0.11.0",

@@ -85,14 +85,14 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
 
   const data = [
     {
-      name: 'Total interest',
+      name: 'Interest',
       percentage: calculatePercentage(totalInterest, maturityValue, 'A'),
       color: 'rgba(131, 167, 234, 1)',
       legendFontColor: '#7F7F7F',
       legendFontSize: 15,
     },
     {
-      name: 'Maturity Amount',
+      name: 'Amount',
       percentage: calculatePercentage(totalInterest, maturityValue, 'B'),
       color: '#F00',
       legendFontColor: '#7F7F7F',
@@ -133,24 +133,24 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
 
   const onOptionPress = (option: string) => {
     switch (option) {
-      case 'Export as pdf':
+      case STRINGS.EXPORT_PDF:
         printOrGeneratePDF();
         break;
-      case 'Export as image':
+      case STRINGS.EXPORT_IAMGE:
         printOrGeneratePDF();
         break;
       case STRINGS.PRINT:
         printOrGeneratePDF(true);
         break;
-      case 'Copy and share':
+      case STRINGS.COPY_TO_CLIPBOARD:
         const formattedText = emiData
           .map(({title, value}) => `${title} - ${value},`)
           .join('\n');
-        copyToClipboard(formattedText);
+        const copied = copyToClipboard(formattedText);
+        copied && showToast({text1: 'Copied to clipboard', type: 'success'});
         break;
     }
   };
-
   const checkStoragePermission = async () => {
     if (Platform.OS === 'android' && Platform.Version >= 23) {
       try {
@@ -200,7 +200,7 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
       headerRight: () => (
         <TouchableOpacity
           onPress={() => {
-            setbottomSheetVisible(true);
+            setVisible(true);
           }}
           style={{marginTop: 5}}>
           <Export width={18} height={18} />
@@ -226,38 +226,6 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
     requestNonPersonalizedAdsOnly: true,
     keywords: ['fashion', 'clothing'],
   });
-
-  React.useEffect(() => {
-    const unsubscribeLoaded = rewarded.addAdEventListener(
-      RewardedAdEventType.LOADED,
-      () => {
-        console.log('addloaded :>> ');
-        setLoaded(true);
-      },
-    );
-    const unsubscribeAdClosed = rewarded.addAdEventListener(
-      AdEventType.CLOSED,
-      () => {
-        setVisible(true);
-      },
-    );
-    const unsubscribeEarned = rewarded.addAdEventListener(
-      RewardedAdEventType.EARNED_REWARD,
-      reward => {
-        console.log('User earned reward of ', reward);
-      },
-    );
-
-    // Start loading the rewarded ad straight away
-    rewarded.load();
-
-    // Unsubscribe from events on unmount
-    return () => {
-      unsubscribeLoaded();
-      unsubscribeEarned();
-      unsubscribeAdClosed();
-    };
-  }, []);
 
   const captureScreenshot = async () => {
     try {
@@ -317,12 +285,7 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
       <OptionModal
         visible={visible}
         // modalTitle="Export"
-        strings={[
-          STRINGS.EXPORT_PDF,
-          STRINGS.EXPORT_IAMGE,
-          STRINGS.PRINT,
-          STRINGS.COPY_SHARE,
-        ]}
+        strings={[STRINGS.EXPORT_PDF, STRINGS.COPY_TO_CLIPBOARD]}
         onClose={() => {
           setVisible(false);
         }}
@@ -343,19 +306,6 @@ const InDepthDetailScreen: React.FC<AppScreenProps<'InDepthDetailScreen'>> = ({
         }}
         visible={bottomSheetVisible}
       />
-      <Button
-        status="primary"
-        onPress={async () => {
-          toggleBottomSheet();
-          // const result = await checkStoragePermission();
-          // console.log('result', result);
-          // if (!result) {
-          //   askForStoragePermission();
-          // }
-          // captureScreenshot();
-        }}>
-        {'rightTitle'}
-      </Button>
     </Layout>
   );
 };

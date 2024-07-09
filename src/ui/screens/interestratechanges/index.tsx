@@ -65,12 +65,14 @@ const InterestRateChanges: React.FC<AppScreenProps<'InterestRateChanges'>> = ({
             <Input
               placeholder="Changed Rate"
               value={change.rate}
+              keyboardType="number-pad"
               onChangeText={text => {
                 const newChanges = [...changes];
                 newChanges[index].rate = text;
                 setChanges(newChanges);
               }}
               style={styles.input}
+              textStyle={styles.inputText}
               accessoryRight={() => {
                 return <Text>%</Text>;
               }}
@@ -83,7 +85,9 @@ const InterestRateChanges: React.FC<AppScreenProps<'InterestRateChanges'>> = ({
                 newChanges[index].month = text;
                 setChanges(newChanges);
               }}
+              keyboardType="number-pad"
               style={styles.input}
+              textStyle={styles.inputText}
             />
             <TouchableOpacity
               style={styles.closeButton}
@@ -103,7 +107,7 @@ const InterestRateChanges: React.FC<AppScreenProps<'InterestRateChanges'>> = ({
         ))}
 
         <Button
-          style={{marginTop: 8, marginHorizontal: 70}}
+          style={{marginTop: 8, marginHorizontal: 20}}
           onPress={() => {
             setChanges([...changes, {month: '', rate: ''}]);
           }}>
@@ -162,7 +166,7 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
     paddingVertical: 5,
-    paddingLeft: 10,
+    paddingLeft: 0,
   },
   card: {
     backgroundColor: 'white',
@@ -181,11 +185,12 @@ const styles = StyleSheet.create({
     flex: 0.7,
     marginVertical: 2,
     marginRight: 5,
-    // height: 10,
+  },
+  inputText: {
+    paddingLeft: -10,
   },
   buttonContainer: {
     flexDirection: 'row',
-    // justifyContent: 'space-between',
     marginTop: 16,
   },
   closeButton: {

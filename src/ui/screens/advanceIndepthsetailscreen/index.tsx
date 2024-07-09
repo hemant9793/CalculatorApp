@@ -52,7 +52,6 @@ const AdvanceInDepthDetailScreen: React.FC<
     totalOldInterest = 0,
     interestChangeString = '',
   } = route.params;
-  console.log(route.params);
 
   const getInterestTitle = (changedInterest?: number) => {
     return changedInterest && changedInterest > 0
@@ -108,9 +107,10 @@ const AdvanceInDepthDetailScreen: React.FC<
     const htmlContent1 = createHtmlContent(emiData, amortizationSchedule);
     const options = {
       html: htmlContent1,
-      fileName: 'SampleReport', // Name your PDF file
+      fileName: 'EMI pdf', // Name your PDF file
       directory: 'Download',
     };
+    console.log('options==========>', options);
     if (printPDF) {
       const results = await RNHTMLtoPDF.convert(options);
       await RNPrint.print({filePath: results.filePath ?? ''});
@@ -128,20 +128,21 @@ const AdvanceInDepthDetailScreen: React.FC<
 
   const onOptionPress = (option: string) => {
     switch (option) {
-      case 'Export as pdf':
+      case STRINGS.EXPORT_PDF:
         printOrGeneratePDF();
         break;
-      case 'Export as image':
+      case STRINGS.EXPORT_IAMGE:
         printOrGeneratePDF();
         break;
       case STRINGS.PRINT:
         printOrGeneratePDF(true);
         break;
-      case 'Copy and share':
+      case STRINGS.COPY_TO_CLIPBOARD:
         const formattedText = emiData
           .map(({title, value}) => `${title} - ${value},`)
           .join('\n');
-        copyToClipboard(formattedText);
+        const copied = copyToClipboard(formattedText);
+        copied && showToast({text1: 'Copied to clipboard', type: 'success'});
         break;
     }
   };
@@ -195,7 +196,7 @@ const AdvanceInDepthDetailScreen: React.FC<
       headerRight: () => (
         <TouchableOpacity
           onPress={() => {
-            setbottomSheetVisible(true);
+            setVisible(true);
           }}
           style={{marginTop: 5}}>
           <Export width={18} height={18} />
@@ -221,38 +222,6 @@ const AdvanceInDepthDetailScreen: React.FC<
     requestNonPersonalizedAdsOnly: true,
     keywords: ['fashion', 'clothing'],
   });
-
-  React.useEffect(() => {
-    const unsubscribeLoaded = rewarded.addAdEventListener(
-      RewardedAdEventType.LOADED,
-      () => {
-        console.log('addloaded :>> ');
-        setLoaded(true);
-      },
-    );
-    const unsubscribeAdClosed = rewarded.addAdEventListener(
-      AdEventType.CLOSED,
-      () => {
-        setVisible(true);
-      },
-    );
-    const unsubscribeEarned = rewarded.addAdEventListener(
-      RewardedAdEventType.EARNED_REWARD,
-      reward => {
-        console.log('User earned reward of ', reward);
-      },
-    );
-
-    // Start loading the rewarded ad straight away
-    rewarded.load();
-
-    // Unsubscribe from events on unmount
-    return () => {
-      unsubscribeLoaded();
-      unsubscribeEarned();
-      unsubscribeAdClosed();
-    };
-  }, []);
 
   const captureScreenshot = async () => {
     try {
@@ -286,12 +255,7 @@ const AdvanceInDepthDetailScreen: React.FC<
       <OptionModal
         visible={visible}
         // modalTitle="Export"
-        strings={[
-          STRINGS.EXPORT_PDF,
-          STRINGS.EXPORT_IAMGE,
-          STRINGS.PRINT,
-          STRINGS.COPY_SHARE,
-        ]}
+        strings={[STRINGS.EXPORT_PDF, STRINGS.COPY_TO_CLIPBOARD]}
         onClose={() => {
           setVisible(false);
         }}
@@ -312,19 +276,6 @@ const AdvanceInDepthDetailScreen: React.FC<
         }}
         visible={bottomSheetVisible}
       />
-      <Button
-        status="primary"
-        onPress={async () => {
-          toggleBottomSheet();
-          // const result = await checkStoragePermission();
-          // console.log('result', result);
-          // if (!result) {
-          //   askForStoragePermission();
-          // }
-          // captureScreenshot();
-        }}>
-        {'rightTitle'}
-      </Button>
     </ScrollView>
   );
 };

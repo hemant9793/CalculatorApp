@@ -92,7 +92,7 @@ const AdvanceDetailScreen: React.FC<AppScreenProps<'AdvanceDetailScreen'>> = ({
 
   const pieChartData = [
     {
-      name: 'Total interest',
+      name: 'Interest',
       percentage: calculatePercentage(
         totalNewInterest ? totalNewInterest : totalInterest,
         loanAmount,
@@ -103,7 +103,7 @@ const AdvanceDetailScreen: React.FC<AppScreenProps<'AdvanceDetailScreen'>> = ({
       legendFontSize: 15,
     },
     {
-      name: 'Loan Amount',
+      name: 'Amount',
       percentage: calculatePercentage(
         totalNewInterest ? totalNewInterest : totalInterest,
         loanAmount,

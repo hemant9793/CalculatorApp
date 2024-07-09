@@ -4,7 +4,7 @@ export const calculateEMI = (
   principalAmount: number,
   monthlyInterestRate: number,
   loanTenureMonths: number,
-  emiType: string,
+  emiType?: string,
 ): number => {
   let emiValue = 0;
   if (emiType == 'Flat') {

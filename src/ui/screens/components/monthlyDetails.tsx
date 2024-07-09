@@ -82,7 +82,7 @@ const AmortizationSchedule: React.FC<AmortizationScheduleProps> = ({
 const kittenStyles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 10,
+    marginBottom: 20,
   },
   headerRow: {
     flexDirection: 'row',

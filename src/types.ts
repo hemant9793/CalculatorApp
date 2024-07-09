@@ -84,7 +84,7 @@ export type VariableScreenParams = {
 };
 
 export type AppStackParamList = {
-  HomeScreen: undefined;
+  Calculators: undefined;
   EmiCalculator: VariableScreenParams;
   AdvanceEmiCalculator: undefined;
   VariableInterestHomeLoanCalculator: undefined;

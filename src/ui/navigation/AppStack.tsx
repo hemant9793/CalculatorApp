@@ -4,7 +4,7 @@ import {useTheme} from '@ui-kitten/components';
 
 import {AppStackParamList} from '@src/types';
 import {commonNavigationStyles} from './CommonNavigationStyles';
-import HomeScreen from '@src/ui/screens/homescreen';
+import Calculators from '@src/ui/screens/homescreen';
 import EmiCalculator from '@src/ui/screens/emiCalculator';
 import DetailScreen from '@src/ui/screens/Details';
 import InDepthDetailScreen from '@src/ui/screens/indepthsetailscreen';
@@ -25,10 +25,10 @@ export function AppStack() {
   const theme = useTheme();
   return (
     <Stack.Navigator
-      initialRouteName="HomeScreen"
+      initialRouteName="Calculators"
       //@ts-ignore
       screenOptions={commonNavigationStyles(theme)}>
-      <Stack.Screen name="HomeScreen" component={HomeScreen} />
+      <Stack.Screen name="Calculators" component={Calculators} />
       <Stack.Screen
         name="EmiCalculator"
         component={EmiCalculator}

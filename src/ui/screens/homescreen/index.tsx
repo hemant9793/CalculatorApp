@@ -1,6 +1,8 @@
 import React from 'react';
 import {StyleSheet, ScrollView, TouchableOpacity} from 'react-native';
 import {Layout, Text, useStyleSheet, useTheme} from '@ui-kitten/components';
+import DeviceInfo from 'react-native-device-info';
+
 import {AppScreenProps, HomeScreenSectionData} from '@src/types';
 import {SCREEN_NAMES, SCREEN_UI_DATA} from '@src/ui/screendata/screendata';
 import SvgInCircle from '@src/ui/screens/components/circularSvg';
@@ -8,12 +10,14 @@ import {SCREEN_EMI_UI_DATA} from '@src/ui/screens/emiCalculator/emiscreendata';
 import {useFocusEffect} from '@react-navigation/native';
 import {GLOBAL_CONSTANTS} from '@src/constants';
 
-const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({navigation}) => {
+import {STRINGS} from './strings';
+
+const Calculators: React.FC<AppScreenProps<'Calculators'>> = ({navigation}) => {
   const kittenStyle = useStyleSheet(kittenStyles);
   const theme = useTheme();
   const sections: HomeScreenSectionData[] = [
     {
-      title: 'Emi Calculators',
+      title: 'EMI',
       data: [
         {
           key: 'EMI',
@@ -49,7 +53,7 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({navigation}) => {
       ],
     },
     {
-      title: 'Banking Calculators',
+      title: 'Banking',
       data: [
         {
           key: 'FD Calculator',
@@ -70,7 +74,7 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({navigation}) => {
       ],
     },
     {
-      title: 'Other Calculators',
+      title: 'Others',
       data: [
         {
           key: 'Amount to words',
@@ -89,7 +93,7 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({navigation}) => {
   ];
 
   const onItemPress = (section: string, item: any) => {
-    if (section === 'Emi Calculators') {
+    if (section === 'EMI') {
       const screenName = [
         'EmiCalculator',
         'FlatRateEmiCalculator',
@@ -99,7 +103,7 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({navigation}) => {
         : item.screen;
       //@ts-ignore
       navigation.navigate(screenName, SCREEN_EMI_UI_DATA[item?.screen]);
-    } else if (section === 'Banking Calculators') {
+    } else if (section === 'Banking') {
       //@ts-ignore
       navigation.navigate('FdCalculator', SCREEN_UI_DATA[item?.screen]);
     } else {
@@ -129,6 +133,7 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({navigation}) => {
             <TouchableOpacity
               key={itemIndex}
               style={styles.gridItem}
+              activeOpacity={0.8}
               onPress={() => onItemPress(section?.title, item)}>
               <SvgInCircle
                 width={50}
@@ -170,6 +175,9 @@ const HomeScreen: React.FC<AppScreenProps<'HomeScreen'>> = ({navigation}) => {
       {sections.map((section: HomeScreenSectionData, index: number) =>
         renderSection(section, index),
       )}
+      <Text style={styles.versionStyle}>{`${
+        STRINGS.VERSION
+      } ${DeviceInfo.getVersion()}`}</Text>
     </ScrollView>
   );
 };
@@ -193,7 +201,10 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
-
+  versionStyle: {
+    alignSelf: 'flex-end',
+    marginBottom: 10,
+  },
   sectionHeader: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -226,4 +237,4 @@ const styles = StyleSheet.create({
   iconStyle: {height: 40, width: 40},
 });
 
-export default HomeScreen;
+export default Calculators;
